@@ -2,92 +2,17 @@ import { Series } from "../series";
 import { ChartAxis, ChartAxisDirection } from "../../chartAxis";
 import { SeriesMarker, SeriesMarkerFormatterParams } from "../seriesMarker";
 import { isContinuous, isDiscrete } from "../../../util/value";
-import { Annotation } from "../../annotation";
-import { Group } from "../../../scene/group";
-
-class SeriesAnnotations {
-
-    constructor(
-        private readonly series: CartesianSeries
-    ) {
-        // nothing to do here
-    }
-
-    private _xAxis?: Annotation[] = [];
-    set xAxis(value: Annotation[] | undefined) {
-        this._xAxis?.forEach(xAnnotation => this.series.detachAnnotation(xAnnotation));
-
-        this._xAxis = value;
-
-        this._xAxis?.forEach(xAnnotation => {
-            xAnnotation.direction = ChartAxisDirection.X;
-            this.series.attachAnnotation(xAnnotation);
-        });
-    }
-    get xAxis(): Annotation[] | undefined {
-        return this._xAxis;
-    }
-
-    private _yAxis?: Annotation[] = [];
-    set yAxis(value: Annotation[] | undefined) {
-        this._yAxis?.forEach(yAnnotation => this.series.detachAnnotation(yAnnotation));
-
-        this._yAxis = value;
-        this._yAxis?.forEach(yAnnotation => {
-            yAnnotation.direction = ChartAxisDirection.Y;
-            this.series.attachAnnotation(yAnnotation);
-        });
-    }
-    get yAxis(): Annotation[] | undefined {
-        return this._yAxis;
-    }
-}
-
-
 export abstract class CartesianSeries extends Series {
     directionKeys: { [key in ChartAxisDirection]?: string[] } = {
         [ChartAxisDirection.X]: ['xKey'],
         [ChartAxisDirection.Y]: ['yKey']
     };
 
-    private annotations?: SeriesAnnotations = new SeriesAnnotations(this);
-    readonly annotationGroup: Group = new Group({ name: `${this.id}-Annotations` });
-
     constructor() {
         super();
-        this.group.insertBefore(this.annotationGroup, this.seriesGroup);
     }
 
-    attachAnnotation(annotation: Annotation) {
-        this.annotationGroup.appendChild(annotation.group);
-    }
-
-    detachAnnotation(annotation: Annotation) {
-        this.annotationGroup.removeChild(annotation.group);
-    }
-
-    update() {
-        if (this.annotations) {
-            this.updateAnnotations();
-        }
-    }
-
-    updateAnnotations() {
-        const xScale = this.xAxis?.scale;
-        const yScale = this.yAxis?.scale;
-        const visible = this.group.visible;
-        this.annotations?.xAxis?.forEach((xAnnotation) => {
-            xAnnotation.xScale = xScale;
-            xAnnotation.yScale = yScale;
-            xAnnotation.update(visible);
-        });
-        this.annotations?.yAxis?.forEach((yAnnotation) => {
-            yAnnotation.xScale = xScale;
-            yAnnotation.yScale = yScale;
-            yAnnotation.update(visible);
-        });
-    }
-
+    update() {}
     /**
      * Note: we are passing `isContinuousX` and `isContinuousY` into this method because it will
      *       typically be called inside a loop and this check only needs to happen once.

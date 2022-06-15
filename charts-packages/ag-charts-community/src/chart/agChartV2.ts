@@ -43,7 +43,7 @@ import { Axis } from '../axis';
 import { GroupedCategoryChart } from './groupedCategoryChart';
 import { prepareOptions, isAgCartesianChartOptions, isAgHierarchyChartOptions, isAgPolarChartOptions, optionsType } from './mapping/prepare';
 import { SeriesOptionsTypes } from './mapping/defaults';
-import { Annotation } from './annotation';
+import { CrossLine } from './crossLine';
 
 type ChartType = CartesianChart | PolarChart | HierarchyChart;
 
@@ -118,7 +118,7 @@ export abstract class AgChart {
 
 export abstract class AgChartV2 {
     static DEBUG = false;
-    
+
     static create<T extends ChartType>(userOptions: ChartOptionType<T>): T {
         debug('user options', userOptions);
         const mixinOpts: any = {};
@@ -381,8 +381,7 @@ const JSON_APPLY_OPTIONS: Parameters<typeof jsonApply>[2] = {
         'title': Caption,
         'subtitle': Caption,
         'shadow': DropShadow,
-        'series[].annotations.xAxis[]': Annotation,
-        'series[].annotations.yAxis[]': Annotation,
+        'axes[].crossLines[]': CrossLine,
     },
     allowedTypes: {
         'series[].marker.shape': ['primitive', 'function'],
@@ -397,7 +396,7 @@ function applyOptionValues<T extends ChartType, S extends ChartOptionType<T>>(
 ): T {
     const applyOpts = {
         ...JSON_APPLY_OPTIONS,
-        skip: ['type' as keyof (T|S), ...(skip || [])], 
+        skip: ['type' as keyof (T|S), ...(skip || [])],
         ...(path ? { path } : {}),
     };
     return jsonApply<T, any>(target, options, applyOpts);
@@ -419,7 +418,7 @@ function applySeriesValues<T extends Series, S extends SeriesOptionType<T>>(
     const applyOpts = {
         ...JSON_APPLY_OPTIONS,
         ...seriesTypeOverrides,
-        skip: ['type' as keyof (T|S), ...(skip || [])], 
+        skip: ['type' as keyof (T|S), ...(skip || [])],
         ...(path ? { path } : {}),
     };
     return jsonApply<T, any>(target, options, applyOpts);
@@ -430,9 +429,18 @@ function applyAxisValues<T extends Axis<any, any>, S extends AxisOptionType<T>>(
     options?: S,
     { skip, path }: { skip?: (keyof T | keyof S)[], path?: string } = {},
 ): T {
+    const ctrs = JSON_APPLY_OPTIONS?.constructors || {};
+    const axisOverrides = {
+        constructors: {
+            ...ctrs,
+            'crossLines': ctrs['axes[].crossLines[]'],
+        },
+    };
+
     const applyOpts = {
         ...JSON_APPLY_OPTIONS,
-        skip: ['type' as keyof (T|S), ...(skip || [])], 
+        ...axisOverrides,
+        skip: ['type' as keyof (T|S), ...(skip || [])],
         ...(path ? { path } : {}),
     };
     return jsonApply<T, any>(target, options, applyOpts);

@@ -13,6 +13,7 @@ import { normalizeAngle360, normalizeAngle360Inclusive, toRadians } from "./util
 import { doOnce } from "./util/function";
 import { ContinuousScale } from "./scale/continuousScale";
 import { CountableTimeInterval } from "./util/time/interval";
+import { CrossLine } from "./chart/crossLine";
 
 enum Tags {
     Tick,
@@ -168,6 +169,9 @@ export class Axis<S extends Scale<D, number>, D = any> {
         this._scale = value;
         this.requestedRange = value.range.slice();
         this.onLabelFormatChange();
+        this.crossLines?.forEach((crossLine) => {
+            crossLine.scale = value;
+        });
     }
     get scale(): S {
         return this._scale;
@@ -176,11 +180,26 @@ export class Axis<S extends Scale<D, number>, D = any> {
     ticks: any[];
 
     readonly axisGroup = new Group({ name: `${this.id}-axis`, layer: true, zIndex: 50 });
+    readonly crossLineGroup: Group = new Group({ name: `${this.id}-CrossLines`, zIndex: 150 });
     private axisGroupSelection: Selection<Group, Group, D, D>;
     private lineNode = new Line();
 
     readonly gridlineGroup = new Group({ name: `${this.id}-gridline`, layer: true, zIndex: 0 });
     private gridlineGroupSelection: Selection<Group, Group, D, D>;
+
+    private _crossLines?: CrossLine[] = [];
+    set crossLines(value: CrossLine[] | undefined) {
+        this._crossLines?.forEach(crossLine => this.detachCrossLine(crossLine));
+
+        this._crossLines = value;
+
+        this._crossLines?.forEach(crossLine => {
+            this.attachCrossLine(crossLine);
+        });
+    }
+    get crossLines(): CrossLine[] | undefined {
+        return this._crossLines;
+    }
 
     readonly line: {
         /**
@@ -215,6 +234,14 @@ export class Axis<S extends Scale<D, number>, D = any> {
     protected _calculatedTickCount?: TickCount = undefined;
     get calculatedTickCount() {
         return this._calculatedTickCount ?? this.tick.count;
+    }
+
+    attachCrossLine(crossLine: CrossLine) {
+        this.crossLineGroup.appendChild(crossLine.group);
+    }
+
+    detachCrossLine(crossLine: CrossLine) {
+        this.crossLineGroup.removeChild(crossLine.group);
     }
 
     /**
@@ -360,6 +387,10 @@ export class Axis<S extends Scale<D, number>, D = any> {
         }
 
         this._gridLength = value;
+
+        this.crossLines?.forEach((crossLine) => {
+            crossLine.gridLength = value;
+        });
     }
     get gridLength(): number {
         return this._gridLength;
@@ -408,7 +439,7 @@ export class Axis<S extends Scale<D, number>, D = any> {
      * it will also make it harder to reason about the program.
      */
     update() {
-        const { axisGroup, gridlineGroup, scale, tick, label, gridStyle, requestedRange } = this;
+        const { axisGroup, gridlineGroup, crossLineGroup, scale, gridLength, tick, label, gridStyle, requestedRange, translation: { x: translationX, y: translationY} } = this;
         const requestedRangeMin = Math.min(requestedRange[0], requestedRange[1]);
         const requestedRangeMax = Math.max(requestedRange[0], requestedRange[1]);
         const rotation = toRadians(this.rotation);
@@ -416,12 +447,16 @@ export class Axis<S extends Scale<D, number>, D = any> {
         const parallelLabels = label.parallel;
         let labelAutoRotation = 0;
 
-        axisGroup.translationX = this.translation.x;
-        axisGroup.translationY = this.translation.y;
+        crossLineGroup.translationX = translationX;
+        crossLineGroup.translationY = translationY;
+        crossLineGroup.rotation = rotation;
+
+        axisGroup.translationX = translationX;
+        axisGroup.translationY = translationY;
         axisGroup.rotation = rotation;
 
-        gridlineGroup.translationX = this.translation.x;
-        gridlineGroup.translationY = this.translation.y;
+        gridlineGroup.translationX = translationX;
+        gridlineGroup.translationY = translationY;
         gridlineGroup.rotation = rotation;
 
         const halfBandwidth = (scale.bandwidth || 0) / 2;
@@ -457,10 +492,10 @@ export class Axis<S extends Scale<D, number>, D = any> {
 
         const axisGroupSelection = updateAxis.merge(enterAxis);
 
-        const updateGridlines = this.gridlineGroupSelection.setData(this.gridLength ? ticks : []);
+        const updateGridlines = this.gridlineGroupSelection.setData(gridLength ? ticks : []);
         updateGridlines.exit.remove();
         let gridlineGroupSelection = updateGridlines;
-        if (this.gridLength) {
+        if (gridLength) {
             const tagFn = (node: Line | Arc) => node.tag = Tags.GridLine;
             const enterGridline = updateGridlines.enter.append(Group);
             if (this.radialGrid) {
@@ -634,12 +669,12 @@ export class Axis<S extends Scale<D, number>, D = any> {
             .attr('y1', 0)
             .attr('y2', 0);
 
-        if (this.gridLength && gridStyle.length) {
+        if (gridLength && gridStyle.length) {
             const styleCount = gridStyle.length;
             let gridLines: Selection<Shape, Group, D, D>;
 
             if (this.radialGrid) {
-                const angularGridLength = normalizeAngle360Inclusive(toRadians(this.gridLength));
+                const angularGridLength = normalizeAngle360Inclusive(toRadians(gridLength));
 
                 gridLines = gridlineGroupSelection.selectByTag<Arc>(Tags.GridLine)
                     .each((arc, datum, index) => {
@@ -656,7 +691,7 @@ export class Axis<S extends Scale<D, number>, D = any> {
                 gridLines = gridlineGroupSelection.selectByTag<Line>(Tags.GridLine)
                     .each((line, _, index) => {
                         line.x1 = 0;
-                        line.x2 = -sideFlag * this.gridLength;
+                        line.x2 = -sideFlag * gridLength;
                         line.y1 = 0;
                         line.y2 = 0;
                         line.visible = Math.abs(line.parent!.translationY - scale.range[0]) > 1 && labelBboxes.has(index);
@@ -687,6 +722,12 @@ export class Axis<S extends Scale<D, number>, D = any> {
         lineNode.visible = ticks.length > 0;
 
         this.positionTitle();
+
+        this.crossLines?.forEach((crossLine) => {
+            crossLine.scale = scale;
+            crossLine.gridLength = gridLength;
+            crossLine.update(anyVisible); // fix visible
+        });
     }
 
     private positionTitle(): void {

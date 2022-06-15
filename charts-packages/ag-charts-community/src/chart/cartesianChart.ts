@@ -310,7 +310,7 @@ export class CartesianChart extends Chart {
 
                 const domain = new Array<any>().concat(...domains);
 
-                const isYAxis = axis.direction === 'y';
+                const isYAxis = axis.direction === ChartAxisDirection.Y;
 
                 if (axis instanceof NumberAxis && isYAxis) {
                     // the `primaryTickCount` is used to align the secondary axis tick count with the primary
