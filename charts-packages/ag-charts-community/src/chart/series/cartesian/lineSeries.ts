@@ -186,7 +186,6 @@ export class LineSeries extends CartesianSeries {
     }
 
     update(): void {
-        super.update();
         this.updateSelections();
         this.updateHighlightSelection();
         this.updateNodes();
@@ -326,7 +325,7 @@ export class LineSeries extends CartesianSeries {
         const enterHighlightSelection = updateHighlightSelection.enter.append(MarkerShape);
         this.highlightSelection = updateHighlightSelection.merge(enterHighlightSelection);
     }
-    
+
     private updateNodes() {
         this.group.visible = this.visible;
         this.seriesGroup.visible = this.visible;

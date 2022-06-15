@@ -682,7 +682,6 @@ export class BarSeries extends CartesianSeries {
     }
 
     update(): void {
-        super.update();
         this.updateSelections();
         this.updateHighlightSelection();
         this.updateNodes();

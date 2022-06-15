@@ -12,7 +12,6 @@ export abstract class CartesianSeries extends Series {
         super();
     }
 
-    update() {}
     /**
      * Note: we are passing `isContinuousX` and `isContinuousY` into this method because it will
      *       typically be called inside a loop and this check only needs to happen once.
