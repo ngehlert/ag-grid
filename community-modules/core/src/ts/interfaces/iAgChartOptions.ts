@@ -477,6 +477,29 @@ export interface AgBaseCartesianAxisOptions extends AgBaseAxisOptions {
     label?: AgAxisLabelOptions;
     /** Configuration of the lines used to form the grid in the chart area. */
     gridStyle?: AgAxisGridStyle[];
+    /** Add cross lines or regions corresponding to the data values. */
+    crossLines?: AgCrossLineOptions[];
+}
+
+export interface AgCrossLineOptions {
+    /** Type of cross line to render. */
+    kind: 'line' | 'range'; // change to type
+    /** The data value at which the cross line should be positioned. This property is used if the cross line type is `line`. */
+    value?: any;
+    /** The range of values from the data used to display cross lines for a desired chart region. This property is only used for cross line type `range`. */
+    range?: [any, any];
+    /** The colour to use for the fill of the range. */
+    fill?: CssColor;
+    /** The opacity of the fill for the range. */
+    fillOpacity?: Opacity;
+    /** The colour of the stroke for the lines. */
+    stroke?: CssColor;
+    /** The width in pixels of the stroke for the lines. */
+    strokeWidth?: PixelSize;
+    /** The opacity of the stroke for the lines. */
+    strokeOpacity?: Opacity;
+    /** Defines how the line stroke is rendered. Every number in the array specifies the length in pixels of alternating dashes and gaps. For example, `[6, 3]` means dashes with a length of `6` pixels with gaps between of `3` pixels. */
+    lineDash?: PixelSize[];
 }
 
 export interface AgNumberAxisOptions extends AgBaseCartesianAxisOptions {

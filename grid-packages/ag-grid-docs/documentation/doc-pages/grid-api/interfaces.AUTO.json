@@ -6195,6 +6195,7 @@
       "line?": "AgAxisLineOptions",
       "label?": "AgAxisLabelOptions",
       "gridStyle?": "AgAxisGridStyle[]",
+      "crossLines?": "AgCrossLineOptions[]",
       "keys?": "string[]",
       "thickness?": "PixelSize"
     },
@@ -6212,6 +6213,7 @@
       "line?": "/** Configuration for the axis line. */",
       "label?": "/** Configuration for the axis labels, shown next to the ticks. */",
       "gridStyle?": "/** Configuration of the lines used to form the grid in the chart area. */",
+      "crossLines?": "/** Add cross lines or regions corresponding to the data values. */",
       "thickness?": "/** If set to a non-zero value, the axis will have the specified thickness regardless of label size. */"
     }
   },
@@ -6232,6 +6234,7 @@
       "line?": "AgAxisLineOptions",
       "label?": "AgAxisLabelOptions",
       "gridStyle?": "AgAxisGridStyle[]",
+      "crossLines?": "AgCrossLineOptions[]",
       "keys?": "string[]",
       "thickness?": "PixelSize"
     },
@@ -6250,6 +6253,7 @@
       "line?": "/** Configuration for the axis line. */",
       "label?": "/** Configuration for the axis labels, shown next to the ticks. */",
       "gridStyle?": "/** Configuration of the lines used to form the grid in the chart area. */",
+      "crossLines?": "/** Add cross lines or regions corresponding to the data values. */",
       "thickness?": "/** If set to a non-zero value, the axis will have the specified thickness regardless of label size. */"
     }
   },
@@ -6268,6 +6272,7 @@
       "line?": "AgAxisLineOptions",
       "label?": "AgAxisLabelOptions",
       "gridStyle?": "AgAxisGridStyle[]",
+      "crossLines?": "AgCrossLineOptions[]",
       "keys?": "string[]",
       "thickness?": "PixelSize"
     },
@@ -6282,6 +6287,7 @@
       "line?": "/** Configuration for the axis line. */",
       "label?": "/** Configuration for the axis labels, shown next to the ticks. */",
       "gridStyle?": "/** Configuration of the lines used to form the grid in the chart area. */",
+      "crossLines?": "/** Add cross lines or regions corresponding to the data values. */",
       "thickness?": "/** If set to a non-zero value, the axis will have the specified thickness regardless of label size. */"
     }
   },
@@ -6298,6 +6304,7 @@
       "line?": "AgAxisLineOptions",
       "label?": "AgAxisLabelOptions",
       "gridStyle?": "AgAxisGridStyle[]",
+      "crossLines?": "AgCrossLineOptions[]",
       "keys?": "string[]",
       "thickness?": "PixelSize"
     },
@@ -6312,6 +6319,7 @@
       "line?": "/** Configuration for the axis line. */",
       "label?": "/** Configuration for the axis labels, shown next to the ticks. */",
       "gridStyle?": "/** Configuration of the lines used to form the grid in the chart area. */",
+      "crossLines?": "/** Add cross lines or regions corresponding to the data values. */",
       "thickness?": "/** If set to a non-zero value, the axis will have the specified thickness regardless of label size. */"
     }
   },
@@ -6329,6 +6337,7 @@
       "line?": "AgAxisLineOptions",
       "label?": "AgAxisLabelOptions",
       "gridStyle?": "AgAxisGridStyle[]",
+      "crossLines?": "AgCrossLineOptions[]",
       "keys?": "string[]",
       "thickness?": "PixelSize"
     },
@@ -6344,6 +6353,7 @@
       "line?": "/** Configuration for the axis line. */",
       "label?": "/** Configuration for the axis labels, shown next to the ticks. */",
       "gridStyle?": "/** Configuration of the lines used to form the grid in the chart area. */",
+      "crossLines?": "/** Add cross lines or regions corresponding to the data values. */",
       "thickness?": "/** If set to a non-zero value, the axis will have the specified thickness regardless of label size. */"
     }
   },
@@ -6774,6 +6784,7 @@
       "line?": "AgAxisLineOptions",
       "label?": "AgAxisLabelOptions",
       "gridStyle?": "AgAxisGridStyle[]",
+      "crossLines?": "AgCrossLineOptions[]",
       "keys?": "string[]",
       "thickness?": "PixelSize"
     },
@@ -6783,7 +6794,33 @@
       "line?": "/** Configuration for the axis line. */",
       "label?": "/** Configuration for the axis labels, shown next to the ticks. */",
       "gridStyle?": "/** Configuration of the lines used to form the grid in the chart area. */",
+      "crossLines?": "/** Add cross lines or regions corresponding to the data values. */",
       "thickness?": "/** If set to a non-zero value, the axis will have the specified thickness regardless of label size. */"
+    }
+  },
+  "AgCrossLineOptions": {
+    "meta": {},
+    "type": {
+      "kind": "'line' | 'range'",
+      "value?": "any",
+      "range?": "[any, any]",
+      "fill?": "CssColor",
+      "fillOpacity?": "Opacity",
+      "stroke?": "CssColor",
+      "strokeWidth?": "PixelSize",
+      "strokeOpacity?": "Opacity",
+      "lineDash?": "PixelSize[]"
+    },
+    "docs": {
+      "kind": "/** Type of cross line to render. */",
+      "value?": "/** The data value at which the cross line should be positioned. This property is used if the cross line type is `line`. */",
+      "range?": "/** The range of values from the data used to display cross lines for a desired chart region. This property is only used for cross line type `range`. */",
+      "fill?": "/** The colour to use for the fill of the range. */",
+      "fillOpacity?": "/** The opacity of the fill for the range. */",
+      "stroke?": "/** The colour of the stroke for the lines. */",
+      "strokeWidth?": "/** The width in pixels of the stroke for the lines. */",
+      "strokeOpacity?": "/** The opacity of the stroke for the lines. */",
+      "lineDash?": "/** Defines how the line stroke is rendered. Every number in the array specifies the length in pixels of alternating dashes and gaps. For example, `[6, 3]` means dashes with a length of `6` pixels with gaps between of `3` pixels. */"
     }
   },
   "AgNumberAxisOptions": {
@@ -6799,6 +6836,7 @@
       "line?": "AgAxisLineOptions",
       "label?": "AgAxisLabelOptions",
       "gridStyle?": "AgAxisGridStyle[]",
+      "crossLines?": "AgCrossLineOptions[]",
       "keys?": "string[]",
       "thickness?": "PixelSize"
     },
@@ -6812,6 +6850,7 @@
       "line?": "/** Configuration for the axis line. */",
       "label?": "/** Configuration for the axis labels, shown next to the ticks. */",
       "gridStyle?": "/** Configuration of the lines used to form the grid in the chart area. */",
+      "crossLines?": "/** Add cross lines or regions corresponding to the data values. */",
       "thickness?": "/** If set to a non-zero value, the axis will have the specified thickness regardless of label size. */"
     }
   },
@@ -6829,6 +6868,7 @@
       "line?": "AgAxisLineOptions",
       "label?": "AgAxisLabelOptions",
       "gridStyle?": "AgAxisGridStyle[]",
+      "crossLines?": "AgCrossLineOptions[]",
       "keys?": "string[]",
       "thickness?": "PixelSize"
     },
@@ -6843,6 +6883,7 @@
       "line?": "/** Configuration for the axis line. */",
       "label?": "/** Configuration for the axis labels, shown next to the ticks. */",
       "gridStyle?": "/** Configuration of the lines used to form the grid in the chart area. */",
+      "crossLines?": "/** Add cross lines or regions corresponding to the data values. */",
       "thickness?": "/** If set to a non-zero value, the axis will have the specified thickness regardless of label size. */"
     }
   },
@@ -6858,6 +6899,7 @@
       "line?": "AgAxisLineOptions",
       "label?": "AgAxisLabelOptions",
       "gridStyle?": "AgAxisGridStyle[]",
+      "crossLines?": "AgCrossLineOptions[]",
       "keys?": "string[]",
       "thickness?": "PixelSize"
     },
@@ -6868,6 +6910,7 @@
       "line?": "/** Configuration for the axis line. */",
       "label?": "/** Configuration for the axis labels, shown next to the ticks. */",
       "gridStyle?": "/** Configuration of the lines used to form the grid in the chart area. */",
+      "crossLines?": "/** Add cross lines or regions corresponding to the data values. */",
       "thickness?": "/** If set to a non-zero value, the axis will have the specified thickness regardless of label size. */"
     }
   },
@@ -6881,6 +6924,7 @@
       "line?": "AgAxisLineOptions",
       "label?": "AgAxisLabelOptions",
       "gridStyle?": "AgAxisGridStyle[]",
+      "crossLines?": "AgCrossLineOptions[]",
       "keys?": "string[]",
       "thickness?": "PixelSize"
     },
@@ -6891,6 +6935,7 @@
       "line?": "/** Configuration for the axis line. */",
       "label?": "/** Configuration for the axis labels, shown next to the ticks. */",
       "gridStyle?": "/** Configuration of the lines used to form the grid in the chart area. */",
+      "crossLines?": "/** Add cross lines or regions corresponding to the data values. */",
       "thickness?": "/** If set to a non-zero value, the axis will have the specified thickness regardless of label size. */"
     }
   },
@@ -6905,6 +6950,7 @@
       "line?": "AgAxisLineOptions",
       "label?": "AgAxisLabelOptions",
       "gridStyle?": "AgAxisGridStyle[]",
+      "crossLines?": "AgCrossLineOptions[]",
       "keys?": "string[]",
       "thickness?": "PixelSize"
     },
@@ -6916,6 +6962,7 @@
       "line?": "/** Configuration for the axis line. */",
       "label?": "/** Configuration for the axis labels, shown next to the ticks. */",
       "gridStyle?": "/** Configuration of the lines used to form the grid in the chart area. */",
+      "crossLines?": "/** Add cross lines or regions corresponding to the data values. */",
       "thickness?": "/** If set to a non-zero value, the axis will have the specified thickness regardless of label size. */"
     }
   },

@@ -10862,6 +10862,10 @@
       "description": "/** Configuration of the lines used to form the grid in the chart area. */",
       "type": { "returnType": "AgAxisGridStyle[]", "optional": true }
     },
+    "crossLines": {
+      "description": "/** Add cross lines or regions corresponding to the data values. */",
+      "type": { "returnType": "AgCrossLineOptions[]", "optional": true }
+    },
     "keys": { "type": { "returnType": "string[]", "optional": true } },
     "thickness": {
       "description": "/** If set to a non-zero value, the axis will have the specified thickness regardless of label size. */",
@@ -10937,6 +10941,10 @@
       "description": "/** Configuration of the lines used to form the grid in the chart area. */",
       "type": { "returnType": "AgAxisGridStyle[]", "optional": true }
     },
+    "crossLines": {
+      "description": "/** Add cross lines or regions corresponding to the data values. */",
+      "type": { "returnType": "AgCrossLineOptions[]", "optional": true }
+    },
     "keys": { "type": { "returnType": "string[]", "optional": true } },
     "thickness": {
       "description": "/** If set to a non-zero value, the axis will have the specified thickness regardless of label size. */",
@@ -10998,6 +11006,10 @@
       "description": "/** Configuration of the lines used to form the grid in the chart area. */",
       "type": { "returnType": "AgAxisGridStyle[]", "optional": true }
     },
+    "crossLines": {
+      "description": "/** Add cross lines or regions corresponding to the data values. */",
+      "type": { "returnType": "AgCrossLineOptions[]", "optional": true }
+    },
     "keys": { "type": { "returnType": "string[]", "optional": true } },
     "thickness": {
       "description": "/** If set to a non-zero value, the axis will have the specified thickness regardless of label size. */",
@@ -11056,6 +11068,10 @@
     "gridStyle": {
       "description": "/** Configuration of the lines used to form the grid in the chart area. */",
       "type": { "returnType": "AgAxisGridStyle[]", "optional": true }
+    },
+    "crossLines": {
+      "description": "/** Add cross lines or regions corresponding to the data values. */",
+      "type": { "returnType": "AgCrossLineOptions[]", "optional": true }
     },
     "keys": { "type": { "returnType": "string[]", "optional": true } },
     "thickness": {
@@ -11119,6 +11135,10 @@
     "gridStyle": {
       "description": "/** Configuration of the lines used to form the grid in the chart area. */",
       "type": { "returnType": "AgAxisGridStyle[]", "optional": true }
+    },
+    "crossLines": {
+      "description": "/** Add cross lines or regions corresponding to the data values. */",
+      "type": { "returnType": "AgCrossLineOptions[]", "optional": true }
     },
     "keys": { "type": { "returnType": "string[]", "optional": true } },
     "thickness": {
@@ -11711,10 +11731,52 @@
       "description": "/** Configuration of the lines used to form the grid in the chart area. */",
       "type": { "returnType": "AgAxisGridStyle[]", "optional": true }
     },
+    "crossLines": {
+      "description": "/** Add cross lines or regions corresponding to the data values. */",
+      "type": { "returnType": "AgCrossLineOptions[]", "optional": true }
+    },
     "keys": { "type": { "returnType": "string[]", "optional": true } },
     "thickness": {
       "description": "/** If set to a non-zero value, the axis will have the specified thickness regardless of label size. */",
       "type": { "returnType": "PixelSize", "optional": true }
+    }
+  },
+  "AgCrossLineOptions": {
+    "kind": {
+      "description": "/** Type of cross line to render. */",
+      "type": { "returnType": "'line' | 'range'", "optional": false }
+    },
+    "value": {
+      "description": "/** The data value at which the cross line should be positioned. This property is used if the cross line type is `line`. */",
+      "type": { "returnType": "any", "optional": true }
+    },
+    "range": {
+      "description": "/** The range of values from the data used to display cross lines for a desired chart region. This property is only used for cross line type `range`. */",
+      "type": { "returnType": "[any, any]", "optional": true }
+    },
+    "fill": {
+      "description": "/** The colour to use for the fill of the range. */",
+      "type": { "returnType": "CssColor", "optional": true }
+    },
+    "fillOpacity": {
+      "description": "/** The opacity of the fill for the range. */",
+      "type": { "returnType": "Opacity", "optional": true }
+    },
+    "stroke": {
+      "description": "/** The colour of the stroke for the lines. */",
+      "type": { "returnType": "CssColor", "optional": true }
+    },
+    "strokeWidth": {
+      "description": "/** The width in pixels of the stroke for the lines. */",
+      "type": { "returnType": "PixelSize", "optional": true }
+    },
+    "strokeOpacity": {
+      "description": "/** The opacity of the stroke for the lines. */",
+      "type": { "returnType": "Opacity", "optional": true }
+    },
+    "lineDash": {
+      "description": "/** Defines how the line stroke is rendered. Every number in the array specifies the length in pixels of alternating dashes and gaps. For example, `[6, 3]` means dashes with a length of `6` pixels with gaps between of `3` pixels. */",
+      "type": { "returnType": "PixelSize[]", "optional": true }
     }
   },
   "AgNumberAxisOptions": {
@@ -11754,6 +11816,10 @@
     "gridStyle": {
       "description": "/** Configuration of the lines used to form the grid in the chart area. */",
       "type": { "returnType": "AgAxisGridStyle[]", "optional": true }
+    },
+    "crossLines": {
+      "description": "/** Add cross lines or regions corresponding to the data values. */",
+      "type": { "returnType": "AgCrossLineOptions[]", "optional": true }
     },
     "keys": { "type": { "returnType": "string[]", "optional": true } },
     "thickness": {
@@ -11803,6 +11869,10 @@
       "description": "/** Configuration of the lines used to form the grid in the chart area. */",
       "type": { "returnType": "AgAxisGridStyle[]", "optional": true }
     },
+    "crossLines": {
+      "description": "/** Add cross lines or regions corresponding to the data values. */",
+      "type": { "returnType": "AgCrossLineOptions[]", "optional": true }
+    },
     "keys": { "type": { "returnType": "string[]", "optional": true } },
     "thickness": {
       "description": "/** If set to a non-zero value, the axis will have the specified thickness regardless of label size. */",
@@ -11837,6 +11907,10 @@
       "description": "/** Configuration of the lines used to form the grid in the chart area. */",
       "type": { "returnType": "AgAxisGridStyle[]", "optional": true }
     },
+    "crossLines": {
+      "description": "/** Add cross lines or regions corresponding to the data values. */",
+      "type": { "returnType": "AgCrossLineOptions[]", "optional": true }
+    },
     "keys": { "type": { "returnType": "string[]", "optional": true } },
     "thickness": {
       "description": "/** If set to a non-zero value, the axis will have the specified thickness regardless of label size. */",
@@ -11870,6 +11944,10 @@
     "gridStyle": {
       "description": "/** Configuration of the lines used to form the grid in the chart area. */",
       "type": { "returnType": "AgAxisGridStyle[]", "optional": true }
+    },
+    "crossLines": {
+      "description": "/** Add cross lines or regions corresponding to the data values. */",
+      "type": { "returnType": "AgCrossLineOptions[]", "optional": true }
     },
     "keys": { "type": { "returnType": "string[]", "optional": true } },
     "thickness": {
@@ -11906,6 +11984,10 @@
     "gridStyle": {
       "description": "/** Configuration of the lines used to form the grid in the chart area. */",
       "type": { "returnType": "AgAxisGridStyle[]", "optional": true }
+    },
+    "crossLines": {
+      "description": "/** Add cross lines or regions corresponding to the data values. */",
+      "type": { "returnType": "AgCrossLineOptions[]", "optional": true }
     },
     "keys": { "type": { "returnType": "string[]", "optional": true } },
     "thickness": {
