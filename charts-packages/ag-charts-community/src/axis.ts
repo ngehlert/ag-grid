@@ -740,6 +740,7 @@ export class Axis<S extends Scale<D, number>, D = any> {
         this.crossLines?.forEach((crossLine) => {
             crossLine.scale = scale;
             crossLine.gridLength = gridLength;
+            crossLine.sideFlag = sideFlag;
             crossLine.update(anyVisible); // fix visible
         });
     }

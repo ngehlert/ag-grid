@@ -55,6 +55,7 @@ export class CrossLine {
 
     scale?: Scale<any, number> = undefined;
     gridLength: number = 0;
+    sideFlag: 1 | -1 = -1;
 
     readonly group = new Group({ name: `${this.id}`, layer: true, zIndex: CrossLine.ANNOTATION_LAYER_ZINDEX });
     private crossLineLine: Path = new Path();
@@ -94,7 +95,7 @@ export class CrossLine {
     }
 
     private createNodeData() {
-        const { scale, gridLength, range, value } = this;
+        const { scale, gridLength, sideFlag, range, value } = this;
 
         if (!scale) { return; }
 
@@ -103,7 +104,7 @@ export class CrossLine {
         let xStart, xEnd, yStart, yEnd;
         this.pathData = { points: [] };
 
-        [xStart, xEnd] = [0, gridLength];
+        [xStart, xEnd] = [0, -sideFlag * gridLength];
         [yStart, yEnd] = range || [value, undefined];
         [yStart, yEnd] = [scale.convert(yStart) + halfBandWidth, scale.convert(yEnd) + halfBandWidth];
 
