@@ -1,6 +1,6 @@
 import { Scene } from "../scene/scene";
 import { Group } from "../scene/group";
-import { Series, SeriesNodeDatum } from "./series/series";
+import { Series, SeriesNodeDatum, SeriesNodeDataContext } from "./series/series";
 import { Padding } from "../util/padding";
 import { Shape } from "../scene/shape/shape";
 import { Node } from "../scene/node";
@@ -13,7 +13,7 @@ import { Caption } from "../caption";
 import { Observable, SourceEvent } from "../util/observable";
 import { ChartAxis, ChartAxisDirection } from "./chartAxis";
 import { createId } from "../util/id";
-import { PlacedLabel, placeLabels, PointLabelDatum } from "../util/labelPlacement";
+import { PlacedLabel, placeLabels, PointLabelDatum, isPointLabelDatum } from "../util/labelPlacement";
 import { AgChartOptions } from "./agChartOptions";
 import { debouncedAnimationFrame, debouncedCallback } from "../util/render";
 
@@ -321,6 +321,8 @@ export abstract class Chart extends Observable {
         return this._debug;
     }
 
+    private extraDebugStats: Record<string, number> = {};
+
     private _container: HTMLElement | undefined | null = undefined;
     set container(value: HTMLElement | undefined | null) {
         if (this._container !== value) {
@@ -541,13 +543,14 @@ export abstract class Chart extends Observable {
         }
     }
     private performUpdate(count: number) {
-        const { _performUpdateType: performUpdateType, firstRenderComplete, firstResizeReceived } = this;
-        const start = performance.now();
+        const { _performUpdateType: performUpdateType, firstRenderComplete, firstResizeReceived, extraDebugStats } = this;
+        const splits = [performance.now()];
 
         switch (performUpdateType) {
             case ChartUpdateType.FULL:
             case ChartUpdateType.PROCESS_DATA:
                 this.processData();
+                splits.push(performance.now());
             case ChartUpdateType.PERFORM_LAYOUT:
                 if (!firstRenderComplete && !firstResizeReceived) {
                     if (this.debug) {
@@ -560,14 +563,17 @@ export abstract class Chart extends Observable {
                 }
 
                 this.performLayout();
+                splits.push(performance.now());
             case ChartUpdateType.SERIES_UPDATE:
                 this.seriesToUpdate.forEach(series => {
                     series.update();
                 });
                 this.seriesToUpdate.clear();
+                splits.push(performance.now());
             case ChartUpdateType.SCENE_RENDER:
-                this.scene.render({ start });
+                this.scene.render({ debugSplitTimes: splits, extraDebugStats });
                 this.firstRenderComplete = true;
+                this.extraDebugStats = {};
             case ChartUpdateType.NONE:
                 // Do nothing.
                 this._performUpdateType = ChartUpdateType.NONE;
@@ -576,7 +582,8 @@ export abstract class Chart extends Observable {
 
         if (this.debug) {
             console.log({
-                durationMs: Math.round((end - start)*100) / 100,
+                chart: this,
+                durationMs: Math.round((end - splits[0])*100) / 100,
                 count,
                 performUpdateType: ChartUpdateType[performUpdateType],
             });
@@ -619,7 +626,7 @@ export abstract class Chart extends Observable {
         return this._series;
     }
 
-    addSeries(series: Series, before?: Series): boolean {
+    addSeries(series: Series<any>, before?: Series<any>): boolean {
         const { series: allSeries, seriesRoot } = this;
         const canAdd = allSeries.indexOf(series) < 0;
 
@@ -641,7 +648,7 @@ export abstract class Chart extends Observable {
         return false;
     }
 
-    protected initSeries(series: Series) {
+    protected initSeries(series: Series<any>) {
         series.chart = this;
         if (!series.data) {
             series.data = this.data;
@@ -649,12 +656,12 @@ export abstract class Chart extends Observable {
         series.addEventListener('nodeClick', this.onSeriesNodeClick, this);
     }
 
-    protected freeSeries(series: Series) {
+    protected freeSeries(series: Series<any>) {
         series.chart = undefined;
         series.removeEventListener('nodeClick', this.onSeriesNodeClick, this);
     }
 
-    addSeriesAfter(series: Series, after?: Series): boolean {
+    addSeriesAfter(series: Series<any>, after?: Series<any>): boolean {
         const { series: allSeries, seriesRoot } = this;
         const canAdd = allSeries.indexOf(series) < 0;
 
@@ -685,7 +692,7 @@ export abstract class Chart extends Observable {
         return false;
     }
 
-    removeSeries(series: Series): boolean {
+    removeSeries(series: Series<any>): boolean {
         const index = this.series.indexOf(series);
 
         if (index >= 0) {
@@ -786,7 +793,7 @@ export abstract class Chart extends Observable {
         this.updateLegend();
     }
 
-    private nodeData: Map<Series, readonly SeriesNodeDatum[]> = new Map();
+    private nodeData: Map<Series<any>, SeriesNodeDataContext<any>[]> = new Map();
     createNodeData(): void {
         this.nodeData.clear();
         this.series.forEach(s => {
@@ -795,20 +802,32 @@ export abstract class Chart extends Observable {
         });
     }
 
-    placeLabels(): Map<Series, PlacedLabel[]> {
-        const series: Series[] = [];
+    placeLabels(): Map<Series<any>, PlacedLabel[]> {
+        const seriesIndex: Series[] = [];
         const data: (readonly PointLabelDatum[])[] = [];
-        this.nodeData.forEach((d, s) => {
-            if (s.visible && s.label.enabled) {
-                series.push(s);
-                data.push(s.getLabelData());
+        this.nodeData.forEach((contexts, series) => {
+            if (!series.visible || !series.label.enabled) {
+                return;
             }
+
+            let seriesData: PointLabelDatum[] = [];
+            contexts.forEach((context) => {
+                const contextData = context.labelData;
+                if (!isPointLabelDatum(contextData[0])) {
+                    return;
+                }
+
+                seriesData.push(...contextData);
+            });
+
+            data.push(seriesData);
+            seriesIndex.push(series);
         });
         const { seriesRect } = this;
         const labels: PlacedLabel[][] = seriesRect
             ? placeLabels(data, { x: 0, y: 0, width: seriesRect.width, height: seriesRect.height })
             : [];
-        return new Map(labels.map((l, i) => [series[i], l]));
+        return new Map(labels.map((l, i) => [seriesIndex[i], l]));
     }
 
     private updateLegend() {
@@ -991,27 +1010,37 @@ export abstract class Chart extends Observable {
 
     // x/y are local canvas coordinates in CSS pixels, not actual pixels
     private pickSeriesNode(x: number, y: number): {
-        series: Series,
+        series: Series<any>,
         node: Node
     } | undefined {
         if (!(this.seriesRect && this.seriesRect.containsPoint(x, y))) {
             return undefined;
         }
 
-        let node: Node | undefined = undefined;
+        const start = performance.now();
+
+        let result: {series: Series<any>,node: Node} | undefined = undefined;
         for (const series of this.series) {
             if (!series.visible || !series.group.visible) {
                 continue;
             }
-            node = series.pickNode(x, y);
+            const node = series.pickNode(x, y);
             if (node) {
-                return {
+                result = {
                     series,
                     node
                 };
+                break;
             }
         }
-    }
+
+        this.extraDebugStats['pickSeriesNode'] = Math.round(
+            (this.extraDebugStats['pickSeriesNode'] ?? 0) +
+            (performance.now() - start)
+        );
+
+        return result;
+}
 
     lastPick?: {
         datum: SeriesNodeDatum;
@@ -1029,32 +1058,38 @@ export abstract class Chart extends Observable {
         let minDistance = Infinity;
         let closestDatum: SeriesNodeDatum | undefined;
 
-        for (const series of this.series) {
+        const { series: allSeries, nodeData: nodeDataMap } = this;
+        for (const series of allSeries) {
             if (!series.visible || !series.group.visible) {
                 continue;
             }
+
             // Ignore off-screen points when finding the closest series node datum in tracking mode.
             const { xAxis, yAxis } = series;
             const hitPoint = series.group.transformPoint(x, y);
-            for (const datum of series.getNodeData()) {
-                const { point } = datum;
-                if (!point) {
-                    return;
-                }
 
-                const { x, y } = point;
-                const isInRange = xAxis?.inRange(x) && yAxis?.inRange(y);
-
-                if (!isInRange) {
-                    continue;
-                }
-
-                // No need to use Math.sqrt() since x < y implies Math.sqrt(x) < Math.sqrt(y) for
-                // values > 1 
-                const distance = (hitPoint.x - x) ** 2 + (hitPoint.y - y) ** 2;
-                if (distance < minDistance) {
-                    minDistance = distance;
-                    closestDatum = datum;
+            const contexts = nodeDataMap.get(series) ?? [];
+            for (const context of contexts) {
+                for (const datum of context.nodeData) {
+                    const { point } = datum;
+                    if (!point) {
+                        continue;
+                    }
+        
+                    const { x, y } = point;
+                    const isInRange = xAxis?.inRange(x) && yAxis?.inRange(y);
+        
+                    if (!isInRange) {
+                        continue;
+                    }
+        
+                    // No need to use Math.sqrt() since x < y implies Math.sqrt(x) < Math.sqrt(y) for
+                    // values > 1 
+                    const distance = (hitPoint.x - x) ** 2 + (hitPoint.y - y) ** 2;
+                    if (distance < minDistance) {
+                        minDistance = distance;
+                        closestDatum = datum;
+                    }
                 }
             }
         }
@@ -1075,7 +1110,7 @@ export abstract class Chart extends Observable {
     }
 
     private lastTooltipEvent?: MouseEvent = undefined;
-    private handleTooltipTrigger = debouncedAnimationFrame(({ count }) => {
+    private handleTooltipTrigger = debouncedAnimationFrame(() => {
         this.handleTooltip(this.lastTooltipEvent!);
     });
     protected handleTooltip(event: MouseEvent) {
@@ -1173,7 +1208,7 @@ export abstract class Chart extends Observable {
         return false;
     }
 
-    private onSeriesNodeClick(event: SourceEvent<Series>) {
+    private onSeriesNodeClick(event: SourceEvent<Series<any>>) {
         this.fireEvent({ ...event, type: 'seriesNodeClick' });
     }
 
