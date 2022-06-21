@@ -89,7 +89,7 @@ export const COLUMN_CHART_WITH_NEGATIVE_VALUES_EXAMPLE: AgChartOptions = DOCS_EX
 export const SIMPLE_PIE_CHART_EXAMPLE: AgChartOptions = DOCS_EXAMPLES['simple-pie'];
 export const SIMPLE_DOUGHNUT_CHART_EXAMPLE: AgChartOptions = DOCS_EXAMPLES['simple-doughnut'];
 export const SIMPLE_LINE_CHART_EXAMPLE: AgChartOptions = DOCS_EXAMPLES['simple-line'];
-export const LINE_GRAPH_WITH_GAPS_EXAMPLE: AgChartOptions = DOCS_EXAMPLES['line-with-gaps'];
+export const LINE_GRAPH_WITH_GAPS_EXAMPLE: AgCartesianChartOptions = DOCS_EXAMPLES['line-with-gaps'];
 export const SIMPLE_SCATTER_CHART_EXAMPLE: AgChartOptions = DOCS_EXAMPLES['simple-scatter'];
 export const BUBBLE_GRAPH_WITH_NEGATIVE_VALUES_EXAMPLE: AgChartOptions = DOCS_EXAMPLES['bubble-with-negative-values'];
 export const BUBBLE_GRAPH_WITH_CATEGORIES_EXAMPLE: AgChartOptions = DOCS_EXAMPLES['bubble-with-categories'];
@@ -1076,6 +1076,146 @@ export const TRUNCATED_LEGEND_ITEMS: AgCartesianChartOptions = {
             maxWidth: 100,
         },
     },
+}
+
+export const SCATTER_CROSSLINES: AgCartesianChartOptions = {
+    title: {
+        text: 'Mean Sea Level (mm)',
+    },
+    data: DATA_MEAN_SEA_LEVEL,
+    series: [
+        {
+            type: 'scatter',
+            xKey: 'time',
+            yKey: 'mm',
+        },
+    ],
+    axes: [
+        {
+            position: 'left',
+            type: 'number',
+            crossLines: [
+                {
+                    kind: 'range',
+                    range: [10, 30],
+                    fill: 'pink',
+                    fillOpacity: 0.2,
+                    stroke: 'red',
+                    strokeWidth: 1,
+                },
+                {
+                    kind: 'line',
+                    value: 60,
+                    fill: 'pink',
+                    fillOpacity: 0.2,
+                    stroke: 'red',
+                    strokeWidth: 1,
+                },
+            ],
+        },
+        {
+            position: 'bottom',
+            type: 'number',
+            crossLines: [
+                {
+                    kind: 'range',
+                    range: [2001, 2003],
+                    fill: 'rgba(0,118,0,0.5)',
+                    fillOpacity: 0.2,
+                    stroke: 'green',
+                    strokeWidth: 1,
+                },
+                {
+                    kind: 'range',
+                    range: [2013, 2014],
+                    fill: 'rgba(0,118,0,0.5)',
+                    fillOpacity: 0.2,
+                    stroke: 'green',
+                    strokeWidth: 1,
+                },
+                {
+                    kind: 'line',
+                    value: 2008,
+                    fillOpacity: 0.2,
+                    stroke: 'green',
+                    strokeWidth: 1,
+                },
+            ],
+        },
+    ],
+    legend: {
+        enabled: true,
+        position: "right"
+    },
+}
+
+export const LINE_CROSSLINES: AgCartesianChartOptions = {
+    ...LINE_GRAPH_WITH_GAPS_EXAMPLE,
+    axes: [
+        {
+            type: 'category',
+            position: 'bottom',
+            title: {
+                text: 'Week',
+            },
+            label: {
+                formatter: (params) => (params.index % 3 ? '' : params.value),
+            },
+            crossLines: [
+                {
+                    kind: 'range',
+                    range: ['1', '13'],
+                    fill: 'rgba(0,118,0,0.5)',
+                    fillOpacity: 0.2,
+                    stroke: 'green',
+                    strokeWidth: 1,
+                },
+                {
+                    kind: 'range',
+                    range: ['34', '45'],
+                    fill: 'rgba(0,118,0,0.5)',
+                    fillOpacity: 0.2,
+                    stroke: 'green',
+                    strokeWidth: 1,
+                },
+                {
+                    kind: 'line',
+                    value: '27',
+                    fillOpacity: 0.2,
+                    stroke: 'green',
+                    strokeWidth: 1,
+                },
+            ],
+        },
+        {
+            type: 'number',
+            position: 'left',
+            title: {
+                text: '£ per kg',
+            },
+            nice: false,
+            min: 0.2,
+            max: 1,
+            crossLines: [
+                {
+                    kind: 'range',
+                    range: [0.25, 0.33],
+                    fill: 'pink',
+                    fillOpacity: 0.2,
+                    stroke: 'red',
+                    strokeWidth: 1,
+                },
+                {
+                    kind: 'line',
+                    value: 0.87,
+                    fill: 'pink',
+                    fillOpacity: 0.2,
+                    stroke: 'red',
+                    strokeWidth: 1,
+                },
+            ],
+        },
+    ]
 }
 
 

@@ -184,6 +184,14 @@ const EXAMPLES: Record<string, TestCase> = {
         options: examples.TRUNCATED_LEGEND_ITEMS,
         assertions: cartesianChartAssertions({ axisTypes: ['number', 'category'], seriesTypes: ['bar'] }),
     },
+    SCATTER_CROSSLINES: {
+        options: examples.SCATTER_CROSSLINES,
+        assertions: cartesianChartAssertions({ axisTypes: ['number', 'number'], seriesTypes: ['scatter'] }),
+    },
+    LINE_CROSSLINES: {
+        options: examples.LINE_CROSSLINES,
+        assertions: cartesianChartAssertions({ axisTypes: ['number', 'category'], seriesTypes: ['line'] }),
+    },
 };
 
 describe('AgChartV2', () => {
