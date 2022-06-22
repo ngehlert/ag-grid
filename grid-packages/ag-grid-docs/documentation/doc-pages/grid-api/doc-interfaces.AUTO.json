@@ -4616,7 +4616,7 @@
       "meta": { "isEvent": true, "name": "onPinnedRowDataChanged" }
     },
     "onRowDataChanged": {
-      "description": "/** The client has set new data into the grid using `api.setRowData()` or by changing the `rowData` bound property. */",
+      "description": "/** @deprecated No longer fired, use onRowDataUpdated instead\n */",
       "type": {
         "arguments": { "event": "RowDataChangedEvent" },
         "returnType": "void",
@@ -4625,7 +4625,7 @@
       "meta": { "isEvent": true, "name": "onRowDataChanged" }
     },
     "rowDataChanged": {
-      "description": "/** The client has set new data into the grid using `api.setRowData()` or by changing the `rowData` bound property. */",
+      "description": "/** @deprecated No longer fired, use onRowDataUpdated instead\n */",
       "type": {
         "arguments": { "event": "RowDataChangedEvent" },
         "returnType": "void",
@@ -4634,7 +4634,7 @@
       "meta": { "isEvent": true, "name": "onRowDataChanged" }
     },
     "onRowDataUpdated": {
-      "description": "/** The client has updated data for the grid using `api.applyTransaction(transaction)` or by setting new Row Data and Row ID's are provided (as this results in a transaction underneath the hood). */",
+      "description": "/** The client has updated data for the grid by either a) setting new Row Data or b) Applying a Row Transaction. */",
       "type": {
         "arguments": { "event": "RowDataUpdatedEvent" },
         "returnType": "void",
@@ -4643,7 +4643,7 @@
       "meta": { "isEvent": true, "name": "onRowDataUpdated" }
     },
     "rowDataUpdated": {
-      "description": "/** The client has updated data for the grid using `api.applyTransaction(transaction)` or by setting new Row Data and Row ID's are provided (as this results in a transaction underneath the hood). */",
+      "description": "/** The client has updated data for the grid by either a) setting new Row Data or b) Applying a Row Transaction. */",
       "type": {
         "arguments": { "event": "RowDataUpdatedEvent" },
         "returnType": "void",
@@ -24147,7 +24147,7 @@
       "meta": { "isEvent": true, "name": "onPinnedRowDataChanged" }
     },
     "onRowDataChanged": {
-      "description": "/** The client has set new data into the grid using `api.setRowData()` or by changing the `rowData` bound property. */",
+      "description": "/** @deprecated No longer fired, use onRowDataUpdated instead\n */",
       "type": {
         "arguments": { "event": "RowDataChangedEvent" },
         "returnType": "void",
@@ -24156,7 +24156,7 @@
       "meta": { "isEvent": true, "name": "onRowDataChanged" }
     },
     "rowDataChanged": {
-      "description": "/** The client has set new data into the grid using `api.setRowData()` or by changing the `rowData` bound property. */",
+      "description": "/** @deprecated No longer fired, use onRowDataUpdated instead\n */",
       "type": {
         "arguments": { "event": "RowDataChangedEvent" },
         "returnType": "void",
@@ -24165,7 +24165,7 @@
       "meta": { "isEvent": true, "name": "onRowDataChanged" }
     },
     "onRowDataUpdated": {
-      "description": "/** The client has updated data for the grid using `api.applyTransaction(transaction)` or by setting new Row Data and Row ID's are provided (as this results in a transaction underneath the hood). */",
+      "description": "/** The client has updated data for the grid by either a) setting new Row Data or b) Applying a Row Transaction. */",
       "type": {
         "arguments": { "event": "RowDataUpdatedEvent" },
         "returnType": "void",
@@ -24174,7 +24174,7 @@
       "meta": { "isEvent": true, "name": "onRowDataUpdated" }
     },
     "rowDataUpdated": {
-      "description": "/** The client has updated data for the grid using `api.applyTransaction(transaction)` or by setting new Row Data and Row ID's are provided (as this results in a transaction underneath the hood). */",
+      "description": "/** The client has updated data for the grid by either a) setting new Row Data or b) Applying a Row Transaction. */",
       "type": {
         "arguments": { "event": "RowDataUpdatedEvent" },
         "returnType": "void",
@@ -26905,7 +26905,7 @@
       "meta": { "isEvent": true, "name": "onPinnedRowDataChanged" }
     },
     "onRowDataChanged": {
-      "description": "/** The client has set new data into the grid using `api.setRowData()` or by changing the `rowData` bound property. */",
+      "description": "/** @deprecated No longer fired, use onRowDataUpdated instead\n */",
       "type": {
         "arguments": { "event": "RowDataChangedEvent" },
         "returnType": "void",
@@ -26914,7 +26914,7 @@
       "meta": { "isEvent": true, "name": "onRowDataChanged" }
     },
     "rowDataChanged": {
-      "description": "/** The client has set new data into the grid using `api.setRowData()` or by changing the `rowData` bound property. */",
+      "description": "/** @deprecated No longer fired, use onRowDataUpdated instead\n */",
       "type": {
         "arguments": { "event": "RowDataChangedEvent" },
         "returnType": "void",
@@ -26923,7 +26923,7 @@
       "meta": { "isEvent": true, "name": "onRowDataChanged" }
     },
     "onRowDataUpdated": {
-      "description": "/** The client has updated data for the grid using `api.applyTransaction(transaction)` or by setting new Row Data and Row ID's are provided (as this results in a transaction underneath the hood). */",
+      "description": "/** The client has updated data for the grid by either a) setting new Row Data or b) Applying a Row Transaction. */",
       "type": {
         "arguments": { "event": "RowDataUpdatedEvent" },
         "returnType": "void",
@@ -26932,7 +26932,7 @@
       "meta": { "isEvent": true, "name": "onRowDataUpdated" }
     },
     "rowDataUpdated": {
-      "description": "/** The client has updated data for the grid using `api.applyTransaction(transaction)` or by setting new Row Data and Row ID's are provided (as this results in a transaction underneath the hood). */",
+      "description": "/** The client has updated data for the grid by either a) setting new Row Data or b) Applying a Row Transaction. */",
       "type": {
         "arguments": { "event": "RowDataUpdatedEvent" },
         "returnType": "void",
@@ -29673,7 +29673,7 @@
       "meta": { "isEvent": true, "name": "onPinnedRowDataChanged" }
     },
     "onRowDataChanged": {
-      "description": "/** The client has set new data into the grid using `api.setRowData()` or by changing the `rowData` bound property. */",
+      "description": "/** @deprecated No longer fired, use onRowDataUpdated instead\n */",
       "type": {
         "arguments": { "event": "RowDataChangedEvent" },
         "returnType": "void",
@@ -29682,7 +29682,7 @@
       "meta": { "isEvent": true, "name": "onRowDataChanged" }
     },
     "rowDataChanged": {
-      "description": "/** The client has set new data into the grid using `api.setRowData()` or by changing the `rowData` bound property. */",
+      "description": "/** @deprecated No longer fired, use onRowDataUpdated instead\n */",
       "type": {
         "arguments": { "event": "RowDataChangedEvent" },
         "returnType": "void",
@@ -29691,7 +29691,7 @@
       "meta": { "isEvent": true, "name": "onRowDataChanged" }
     },
     "onRowDataUpdated": {
-      "description": "/** The client has updated data for the grid using `api.applyTransaction(transaction)` or by setting new Row Data and Row ID's are provided (as this results in a transaction underneath the hood). */",
+      "description": "/** The client has updated data for the grid by either a) setting new Row Data or b) Applying a Row Transaction. */",
       "type": {
         "arguments": { "event": "RowDataUpdatedEvent" },
         "returnType": "void",
@@ -29700,7 +29700,7 @@
       "meta": { "isEvent": true, "name": "onRowDataUpdated" }
     },
     "rowDataUpdated": {
-      "description": "/** The client has updated data for the grid using `api.applyTransaction(transaction)` or by setting new Row Data and Row ID's are provided (as this results in a transaction underneath the hood). */",
+      "description": "/** The client has updated data for the grid by either a) setting new Row Data or b) Applying a Row Transaction. */",
       "type": {
         "arguments": { "event": "RowDataUpdatedEvent" },
         "returnType": "void",
