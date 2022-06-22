@@ -77,12 +77,12 @@ export const DOCS_EXAMPLES = {
 
 export const BAR_CHART_EXAMPLE: AgChartOptions = DOCS_EXAMPLES["simple-bar"];
 
-export const GROUPED_BAR_CHART_EXAMPLE: AgChartOptions = DOCS_EXAMPLES['grouped-bar'];
+export const GROUPED_BAR_CHART_EXAMPLE: AgCartesianChartOptions = DOCS_EXAMPLES['grouped-bar'];
 export const STACKED_BAR_CHART_EXAMPLE: AgChartOptions = DOCS_EXAMPLES['stacked-bar'];
 export const ONE_HUNDRED_PERCENT_STACKED_BAR_EXAMPLE: AgChartOptions = DOCS_EXAMPLES['100--stacked-bar'];
 export const BAR_CHART_WITH_LABELS_EXAMPLE: AgChartOptions = DOCS_EXAMPLES['bar-with-labels'];
 export const SIMPLE_COLUMN_CHART_EXAMPLE: AgChartOptions = DOCS_EXAMPLES['simple-column'];
-export const GROUPED_COLUMN_EXAMPLE: AgChartOptions = DOCS_EXAMPLES['grouped-column'];
+export const GROUPED_COLUMN_EXAMPLE: AgCartesianChartOptions = DOCS_EXAMPLES['grouped-column'];
 export const STACKED_COLUMN_GRAPH_EXAMPLE: AgChartOptions = DOCS_EXAMPLES['stacked-column'];
 export const ONE_HUNDRED_PERCENT_STACKED_COLUMNS_EXAMPLE: AgChartOptions = DOCS_EXAMPLES['100--stacked-column'];
 export const COLUMN_CHART_WITH_NEGATIVE_VALUES_EXAMPLE: AgChartOptions = DOCS_EXAMPLES['column-with-negative-values'];
@@ -100,7 +100,7 @@ export const AREA_GRAPH_WITH_NEGATIVE_VALUES_EXAMPLE: AgChartOptions = DOCS_EXAM
 export const MARKET_INDEX_TREEMAP_GRAPH_EXAMPLE: AgChartOptions = DOCS_EXAMPLES['market-index-treemap'];
 export const SIMPLE_HISTOGRAM_CHART_EXAMPLE: AgChartOptions = DOCS_EXAMPLES['simple-histogram'];
 export const HISTOGRAM_WITH_SPECIFIED_BINS_EXAMPLE: AgChartOptions = DOCS_EXAMPLES['histogram-with-specified-bins'];
-export const XY_HISTOGRAM_WITH_MEAN_EXAMPLE: AgChartOptions = DOCS_EXAMPLES['xy-histogram-with-mean-aggregation'];
+export const XY_HISTOGRAM_WITH_MEAN_EXAMPLE: AgCartesianChartOptions = DOCS_EXAMPLES['xy-histogram-with-mean-aggregation'];
 
 export const GROUPED_CATEGORY_AXIS_EXAMPLE: AgChartOptions = {};
 {
@@ -1078,6 +1078,20 @@ export const TRUNCATED_LEGEND_ITEMS: AgCartesianChartOptions = {
     },
 }
 
+const xAxisCrossLineStyle = {
+    fill: 'rgba(0,118,0,0.5)',
+    fillOpacity: 0.2,
+    stroke: 'green',
+    strokeWidth: 1,
+}
+
+const yAxisCrossLineStyle = {
+    fill: 'pink',
+    fillOpacity: 0.2,
+    stroke: 'red',
+    strokeWidth: 1,
+}
+
 export const SCATTER_CROSSLINES: AgCartesianChartOptions = {
     title: {
         text: 'Mean Sea Level (mm)',
@@ -1098,18 +1112,12 @@ export const SCATTER_CROSSLINES: AgCartesianChartOptions = {
                 {
                     kind: 'range',
                     range: [10, 30],
-                    fill: 'pink',
-                    fillOpacity: 0.2,
-                    stroke: 'red',
-                    strokeWidth: 1,
+                    ...yAxisCrossLineStyle
                 },
                 {
                     kind: 'line',
                     value: 60,
-                    fill: 'pink',
-                    fillOpacity: 0.2,
-                    stroke: 'red',
-                    strokeWidth: 1,
+                    ...yAxisCrossLineStyle
                 },
             ],
         },
@@ -1120,25 +1128,17 @@ export const SCATTER_CROSSLINES: AgCartesianChartOptions = {
                 {
                     kind: 'range',
                     range: [2001, 2003],
-                    fill: 'rgba(0,118,0,0.5)',
-                    fillOpacity: 0.2,
-                    stroke: 'green',
-                    strokeWidth: 1,
+                    ...xAxisCrossLineStyle
                 },
                 {
                     kind: 'range',
                     range: [2013, 2014],
-                    fill: 'rgba(0,118,0,0.5)',
-                    fillOpacity: 0.2,
-                    stroke: 'green',
-                    strokeWidth: 1,
+                    ...xAxisCrossLineStyle
                 },
                 {
                     kind: 'line',
                     value: 2008,
-                    fillOpacity: 0.2,
-                    stroke: 'green',
-                    strokeWidth: 1,
+                    ...xAxisCrossLineStyle
                 },
             ],
         },
@@ -1165,25 +1165,17 @@ export const LINE_CROSSLINES: AgCartesianChartOptions = {
                 {
                     kind: 'range',
                     range: ['1', '13'],
-                    fill: 'rgba(0,118,0,0.5)',
-                    fillOpacity: 0.2,
-                    stroke: 'green',
-                    strokeWidth: 1,
+                    ...xAxisCrossLineStyle
                 },
                 {
                     kind: 'range',
                     range: ['34', '45'],
-                    fill: 'rgba(0,118,0,0.5)',
-                    fillOpacity: 0.2,
-                    stroke: 'green',
-                    strokeWidth: 1,
+                    ...xAxisCrossLineStyle
                 },
                 {
                     kind: 'line',
                     value: '27',
-                    fillOpacity: 0.2,
-                    stroke: 'green',
-                    strokeWidth: 1,
+                    ...xAxisCrossLineStyle
                 },
             ],
         },
@@ -1200,22 +1192,193 @@ export const LINE_CROSSLINES: AgCartesianChartOptions = {
                 {
                     kind: 'range',
                     range: [0.25, 0.33],
-                    fill: 'pink',
-                    fillOpacity: 0.2,
-                    stroke: 'red',
-                    strokeWidth: 1,
+                    ...yAxisCrossLineStyle
                 },
                 {
                     kind: 'line',
                     value: 0.87,
-                    fill: 'pink',
-                    fillOpacity: 0.2,
-                    stroke: 'red',
-                    strokeWidth: 1,
+                    ...yAxisCrossLineStyle
                 },
             ],
         },
     ]
+}
+
+export const AREA_CROSSLINES: AgCartesianChartOptions = {
+    ...DOCS_EXAMPLES['area-with-negative-values'],
+    axes: [
+        {
+            type: 'category',
+            position: 'bottom',
+            crossLines: [
+                {
+                    kind: 'range',
+                    range: ['Q1', 'Q2'],
+                    ...xAxisCrossLineStyle
+                },
+                {
+                    kind: 'range',
+                    range: ['Q3', 'Q4'],
+                    ...xAxisCrossLineStyle
+                },
+            ],
+        },
+        {
+            type: 'number',
+            position: 'left',
+            title: {
+                text: 'Thousand tonnes of oil equivalent',
+            },
+            crossLines: [
+                {
+                    kind: 'range',
+                    range: [800, 1000],
+                    ...yAxisCrossLineStyle
+                },
+                {
+                    kind: 'line',
+                    value: -700,
+                    ...yAxisCrossLineStyle
+                },
+            ],
+        },
+    ],
+}
+
+export const COLUMN_CROSSLINES: AgCartesianChartOptions = {
+    ...GROUPED_COLUMN_EXAMPLE,
+    axes: [
+        {
+            position: 'bottom',
+            type: 'category',
+            crossLines: [
+                {
+                    kind: 'range',
+                    range: [`2015`, `2016`],
+                    ...xAxisCrossLineStyle
+                },
+                {
+                    kind: 'range',
+                    range: [`2017`, `2019`],
+                    ...xAxisCrossLineStyle
+                },
+                {
+                    kind: 'line',
+                    value: `2012`,
+                    ...xAxisCrossLineStyle
+                },
+            ],
+        },
+        {
+            position: 'left',
+            type: 'number',
+            crossLines: [
+                {
+                    kind: 'range',
+                    range: [7000, 8000],
+                    ...yAxisCrossLineStyle
+                },
+                {
+                    kind: 'line',
+                    value: 3500,
+                    ...yAxisCrossLineStyle
+                },
+            ],
+        },
+    ],
+}
+
+export const BAR_CROSSLINES: AgCartesianChartOptions = {
+    ...GROUPED_BAR_CHART_EXAMPLE,
+    axes: [
+        {
+            position: 'left',
+            type: 'category',
+            crossLines: [
+                {
+                    kind: 'range',
+                    range: ['Whole economy', 'Public sector'],
+                    ...yAxisCrossLineStyle
+                },
+                {
+                    kind: 'line',
+                    value: 'Manufacturing',
+                    ...yAxisCrossLineStyle
+                },
+            ],
+        },
+        {
+            position: 'bottom',
+            type: 'number',
+            crossLines: [
+                {
+                    kind: 'range',
+                    range: [0.5, 1.4],
+                    ...xAxisCrossLineStyle
+                },
+                {
+                    kind: 'range',
+                    range: [2.3, 2.5],
+                    ...xAxisCrossLineStyle
+                },
+                {
+                    kind: 'line',
+                    value: 3.6,
+                    ...xAxisCrossLineStyle
+                }
+            ],
+        },
+    ],
+}
+
+export const HISTOGRAM_CROSSLINES: AgCartesianChartOptions = {
+    ...XY_HISTOGRAM_WITH_MEAN_EXAMPLE,
+    axes: [
+        {
+            position: 'bottom',
+            type: 'number',
+            title: {
+                enabled: true,
+                text: 'Engine Size (Cubic inches)',
+            },
+            crossLines: [
+                {
+                    kind: 'range',
+                    range: [70, 100],
+                    ...xAxisCrossLineStyle,
+                },
+                {
+                    kind: 'range',
+                    range: [200, 285],
+                    ...xAxisCrossLineStyle
+                },
+                {
+                    kind: 'line',
+                    value: 300,
+                    ...xAxisCrossLineStyle
+                },
+            ],
+        },
+        {
+            position: 'left',
+            type: 'number',
+            title: {
+                text: 'Highway MPG',
+            },
+            crossLines: [
+                {
+                    kind: 'range',
+                    range: [10, 15],
+                    ...yAxisCrossLineStyle
+                },
+                {
+                    kind: 'line',
+                    value: 50,
+                    ...yAxisCrossLineStyle
+                },
+            ],
+        },
+    ],
 }
 
 

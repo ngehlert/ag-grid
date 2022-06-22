@@ -190,7 +190,23 @@ const EXAMPLES: Record<string, TestCase> = {
     },
     LINE_CROSSLINES: {
         options: examples.LINE_CROSSLINES,
-        assertions: cartesianChartAssertions({ axisTypes: ['number', 'category'], seriesTypes: ['line'] }),
+        assertions: cartesianChartAssertions({ axisTypes: ['category', 'number'], seriesTypes: repeat('line', 16) }),
+    },
+    AREA_CROSSLINES: {
+        options: examples.AREA_CROSSLINES,
+        assertions: cartesianChartAssertions({ axisTypes: ['category', 'number'], seriesTypes: repeat('area', 5) }),
+    },
+    COLUMN_CROSSLINES: {
+        options: examples.COLUMN_CROSSLINES,
+        assertions: cartesianChartAssertions({ axisTypes: ['category', 'number'], seriesTypes: ['bar'] }),
+    },
+    BAR_CROSSLINES: {
+        options: examples.BAR_CROSSLINES,
+        assertions: cartesianChartAssertions({ axisTypes: ['category', 'number'], seriesTypes: ['bar'] }),
+    },
+    HISTOGRAM_CROSSLINES: {
+        options: examples.HISTOGRAM_CROSSLINES,
+        assertions: cartesianChartAssertions({ axisTypes: ['number', 'number'], seriesTypes: ['histogram', 'scatter'] }),
     },
 };
 
