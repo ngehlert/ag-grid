@@ -288,8 +288,8 @@ export interface AgChartLegendMarkerOptions {
 }
 
 export interface AgChartLegendLabelOptions {
-    /** If the label text exceeds the character limit, it will be truncated and an ellipsis will be appended to indicate this. */
-    characterLimit?: number;
+    /** If the label text exceeds the maximum length, it will be truncated and an ellipsis will be appended to indicate this. */
+    maxLength?: number;
     /** The colour of the text. */
     color?: CssColor;
     /** The font style to use for the legend. */
@@ -467,7 +467,7 @@ export interface AgAxisLabelOptions {
     /** Format string used when rendering labels for time axes. */
     format?: string;
     /** Function used to render axis labels. If `value` is a number, `fractionDigits` will also be provided, which indicates the number of fractional digits used in the step between ticks; for example, a tick step of `0.0005` would have `fractionDigits` set to `4` */
-    formatter?: (params: AgAxisLabelFormatterParams) => string;
+    formatter?: (params: AgAxisLabelFormatterParams) => string | undefined;
 }
 
 export interface AgAxisGridStyle {
