@@ -743,7 +743,9 @@ export class Axis<S extends Scale<D, number>, D = any> {
         this.crossLines?.forEach((crossLine) => {
             crossLine.scale = scale;
             crossLine.gridLength = gridLength;
-            crossLine.sideFlag = sideFlag;
+            crossLine.sideFlag = -sideFlag as (-1 | 1);
+            crossLine.parallelFlipRotation = parallelFlipRotation;
+            crossLine.regularFlipRotation = regularFlipRotation;
             crossLine.update(anyVisible); // fix visible
         });
     }

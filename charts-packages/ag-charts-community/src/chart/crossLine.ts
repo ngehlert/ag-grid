@@ -1,17 +1,18 @@
-import { Path } from "../scene/shape/path";
-import { Group } from "../scene/group";
-import { FontStyle, FontWeight } from "../scene/shape/text";
 import { PointerEvents } from "../scene/node";
+import { Group } from "../scene/group";
+import { Path } from "../scene/shape/path";
+import { Text, FontStyle, FontWeight } from "../scene/shape/text";
 import { Scale } from "../scale/scale";
 import { createId } from "../util/id";
 import { Series } from "./series/series";
+import { normalizeAngle360, toRadians } from "../util/angle";
 
 export class CrossLineLabel {
     text?: string = undefined;
-    fontStyle?: FontStyle;
-    fontWeight?: FontWeight;
-    fontSize: number;
-    fontFamily: string;
+    fontStyle?: FontStyle = undefined;
+    fontWeight?: FontWeight = undefined;
+    fontSize: number = 15;
+    fontFamily: string = 'Verdana, sans-serif';
     /**
      * The padding between the label and the line.
      */
@@ -20,20 +21,25 @@ export class CrossLineLabel {
      * The color of the labels.
      * Use `undefined` rather than `rgba(0, 0, 0, 0)` to make labels invisible.
      */
-    color?: string;
-    position: 'start' | 'middle' | 'end';
+    color?: string = 'rgba(87, 87, 87, 1)';
+    position?: 'start' | 'middle' | 'end';
+    rotation?: number = undefined;
+    parallel: boolean = true;
 }
+
 export class CrossLineStyle {
     fill?: string;
     stroke?: string;
     strokeWidth?: number;
     lineDash?: [];
 }
+
+interface Point {
+    readonly x: number;
+    readonly y: number;
+}
 interface CrossLinePathData {
-    readonly points: {
-        readonly x: number;
-        readonly y: number;
-    }[];
+    readonly points: Point[];
 }
 export class CrossLine {
 
@@ -51,21 +57,25 @@ export class CrossLine {
     strokeWidth?: number = undefined;
     strokeOpacity?: number = undefined;
     lineDash?: [] = undefined;
-    label?: CrossLineLabel = new CrossLineLabel();
+    label: CrossLineLabel = new CrossLineLabel();
 
     scale?: Scale<any, number> = undefined;
     gridLength: number = 0;
     sideFlag: 1 | -1 = -1;
+    parallelFlipRotation: number = 0;
+    regularFlipRotation: number = 0;
 
     readonly group = new Group({ name: `${this.id}`, layer: true, zIndex: CrossLine.ANNOTATION_LAYER_ZINDEX });
+    private crossLineLabel = new Text();
     private crossLineLine: Path = new Path();
     private crossLineRange: Path = new Path();
+    private labelPoint?: Point = undefined;
     private pathData?: CrossLinePathData = undefined;
 
     constructor() {
-        const { group, crossLineLine, crossLineRange } = this;
+        const { group, crossLineLine, crossLineRange, crossLineLabel } = this;
 
-        group.append([crossLineRange, crossLineLine]);
+        group.append([crossLineRange, crossLineLine, crossLineLabel]);
 
         crossLineLine.fill = undefined;
         crossLineLine.pointerEvents = PointerEvents.None;
@@ -92,6 +102,9 @@ export class CrossLine {
             this.updateRangePath();
             this.updateRangeNode();
         }
+
+        this.updateLabel();
+        this.positionLabel();
     }
 
     private createNodeData() {
@@ -99,14 +112,19 @@ export class CrossLine {
 
         if (!scale) { return; }
 
-        const halfBandWidth = (scale.bandwidth || 0) / 2;
+        const halfBandwidth = (scale.bandwidth || 0) / 2;
 
         let xStart, xEnd, yStart, yEnd;
         this.pathData = { points: [] };
 
-        [xStart, xEnd] = [0, -sideFlag * gridLength];
+        [xStart, xEnd] = [0, sideFlag * gridLength];
         [yStart, yEnd] = range || [value, undefined];
-        [yStart, yEnd] = [scale.convert(yStart) + halfBandWidth, scale.convert(yEnd) + halfBandWidth];
+        [yStart, yEnd] = [scale.convert(yStart) + halfBandwidth, scale.convert(yEnd) + halfBandwidth];
+
+        this.labelPoint = {
+            x: xEnd,
+            y: yEnd ? (yStart + yEnd) / 2 : yStart
+        }
 
         this.pathData.points.push(
             {
@@ -170,5 +188,62 @@ export class CrossLine {
         });
         path.closePath();
         crossLineRange.checkPathDirty();
+    }
+
+    private updateLabel() {
+        const { crossLineLabel, label } = this;
+
+        if (!label.text) { return; }
+
+        crossLineLabel.fontStyle = label.fontStyle;
+        crossLineLabel.fontWeight = label.fontWeight;
+        crossLineLabel.fontSize = label.fontSize;
+        crossLineLabel.fontFamily = label.fontFamily;
+        crossLineLabel.fill = label.color;
+        crossLineLabel.text = label.text;
+    }
+
+    private positionLabel() {
+        const { crossLineLabel,
+            labelPoint: {
+                x = undefined,
+                y = undefined
+            } = {},
+            label: {
+                parallel,
+                rotation,
+            },
+            sideFlag,
+            parallelFlipRotation,
+            regularFlipRotation
+        } = this;
+
+        if (x === undefined || y === undefined) { return; }
+
+        const labelRotation = rotation ? normalizeAngle360(toRadians(rotation)) : 0;
+
+        const parallelFlipFlag = !labelRotation && parallelFlipRotation >= 0 && parallelFlipRotation <= Math.PI ? -1 : 1;
+        const regularFlipFlag = !labelRotation && regularFlipRotation >= 0 && regularFlipRotation <= Math.PI ? -1 : 1;
+
+        const autoRotation = parallel
+        ? parallelFlipFlag * Math.PI / 2
+        : (regularFlipFlag === -1 ? Math.PI : 0);
+
+        const labelTextBaseline = parallel && !labelRotation
+            ? (sideFlag * parallelFlipFlag === -1 ? 'hanging' : 'bottom')
+            : 'middle';
+
+        const alignFlag = (labelRotation > 0 && labelRotation <= Math.PI) ? -1 : 1;
+
+        const labelTextAlign = parallel
+            ? labelRotation ? (sideFlag * alignFlag === -1 ? 'end' : 'start') : 'center'
+            : sideFlag * regularFlipFlag === -1 ? 'end' : 'start';
+
+        crossLineLabel.textBaseline = labelTextBaseline;
+        crossLineLabel.textAlign = labelTextAlign;
+
+        crossLineLabel.translationX = x;
+        crossLineLabel.translationY = y;
+        crossLineLabel.rotation = autoRotation + labelRotation;
     }
 }
