@@ -514,7 +514,36 @@ export interface AgCrossLineOptions {
     strokeOpacity?: Opacity;
     /** Defines how the line stroke is rendered. Every number in the array specifies the length in pixels of alternating dashes and gaps. For example, `[6, 3]` means dashes with a length of `6` pixels with gaps between of `3` pixels. */
     lineDash?: PixelSize[];
+    label: AgCrossLineLabelOptions;
 }
+
+export interface AgCrossLineLabelOptions {
+    /** The font style to use for the labels. */
+    fontStyle?: FontStyle;
+    /** The font weight to use for the labels. */
+    fontWeight?: FontWeight;
+    /** The font size in pixels to use for the labels. */
+    fontSize?: FontSize;
+    /** The font family to use for the labels */
+    fontFamily?: FontFamily;
+    /** Padding in pixels between the axis label and the tick. */
+    padding?: PixelSize;
+    /** The colour to use for the labels */
+    color?: CssColor;
+    /** The rotation of the axis labels in degrees. Note: for integrated charts the default is 335 degrees, unless the axis shows grouped or default categories (indexes). The first row of labels in a grouped category axis is rotated perpendicular to the axis line. */
+    rotation?: number;
+    /** If specified and axis labels may collide, they are rotated so that they are positioned at the supplied angle. This is enabled by default for category. If the `rotation` property is specified, it takes precedence. */
+    autoRotate?: boolean;
+    /** If autoRotate is enabled, specifies the rotation angle to use when autoRotate is activated. Defaults to an angle of 335 degrees if unspecified. */
+    autoRotateAngle?: number;
+}
+
+export type AgCrossLineLabelPosition =
+    'top'
+    | 'left'
+    | 'right'
+    | 'bottom'
+    | 'inside';
 
 export interface AgNumberAxisOptions extends AgBaseCartesianAxisOptions {
     type: 'number';

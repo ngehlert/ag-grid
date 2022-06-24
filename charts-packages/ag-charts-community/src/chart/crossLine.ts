@@ -6,6 +6,7 @@ import { Scale } from "../scale/scale";
 import { createId } from "../util/id";
 import { Series } from "./series/series";
 import { normalizeAngle360, toRadians } from "../util/angle";
+import { ChartAxisDirection } from "./chartAxis";
 
 export class CrossLineLabel {
     text?: string = undefined;
@@ -16,16 +17,31 @@ export class CrossLineLabel {
     /**
      * The padding between the label and the line.
      */
-    padding: number;
+    padding: number = 5;
     /**
      * The color of the labels.
      * Use `undefined` rather than `rgba(0, 0, 0, 0)` to make labels invisible.
      */
     color?: string = 'rgba(87, 87, 87, 1)';
-    position?: 'start' | 'middle' | 'end';
+    position?: CrossLineLabelPosition = undefined;
     rotation?: number = undefined;
-    parallel: boolean = true;
+    parallel?: boolean = undefined;
 }
+
+export type CrossLineLabelPosition =
+    'top'
+    | 'left'
+    | 'right'
+    | 'bottom'
+    | 'inside'
+    | 'insideLeft'
+    | 'insideRight'
+    | 'insideTop'
+    | 'insideBottom'
+    | 'insideTopLeft'
+    | 'insideBottomLeft'
+    | 'insideTopRight'
+    | 'insideBottomRight';
 
 export class CrossLineStyle {
     fill?: string;
@@ -64,6 +80,7 @@ export class CrossLine {
     sideFlag: 1 | -1 = -1;
     parallelFlipRotation: number = 0;
     regularFlipRotation: number = 0;
+    direction: ChartAxisDirection = ChartAxisDirection.X;
 
     readonly group = new Group({ name: `${this.id}`, layer: true, zIndex: CrossLine.ANNOTATION_LAYER_ZINDEX });
     private crossLineLabel = new Text();
@@ -108,7 +125,7 @@ export class CrossLine {
     }
 
     private createNodeData() {
-        const { scale, gridLength, sideFlag, range, value } = this;
+        const { scale, gridLength, sideFlag, direction, range, value, label: { position } } = this;
 
         if (!scale) { return; }
 
@@ -121,9 +138,79 @@ export class CrossLine {
         [yStart, yEnd] = range || [value, undefined];
         [yStart, yEnd] = [scale.convert(yStart) + halfBandwidth, scale.convert(yEnd) + halfBandwidth];
 
-        this.labelPoint = {
-            x: xEnd,
-            y: yEnd ? (yStart + yEnd) / 2 : yStart
+        if (this.label.text) {
+            let labelX;
+            let labelY = yEnd ? (yStart + yEnd) / 2 : yStart;
+            const labelYEnd = isNaN(yEnd) ? undefined : yEnd;
+            if (direction === ChartAxisDirection.Y) {
+                switch (position) {
+                    case 'top': {
+                        labelX = xEnd / 2;
+                        labelY = labelYEnd ? Math.min(yStart, labelYEnd) : yStart;
+                        break;
+                    };
+                    case 'bottom': {
+                        labelX = xEnd / 2;
+                        labelY = labelYEnd ? Math.max(yStart, labelYEnd) : yStart;
+                        break;
+                    }
+                    case 'left': {
+                        labelX = xStart;
+                        labelY = yEnd ? (yStart + yEnd) / 2 : yStart;
+                        break;
+                    }
+                    case 'right': {
+                        labelX = xEnd;
+                        labelY = yEnd ? (yStart + yEnd) / 2 : yStart;
+                        break;
+                    }
+                    case 'inside': {
+                        labelX = xEnd / 2;
+                        labelY = yEnd ? (yStart + yEnd) / 2 : yStart;
+                        break;
+                    }
+                    default: {
+                        labelX = xEnd;
+                        labelY = yEnd ? (yStart + yEnd) / 2 : yStart;
+                    }
+                }
+            } else {
+                switch (position) {
+                    case 'top': {
+                        labelX = xEnd;
+                        labelY = yEnd ? (yStart + yEnd) / 2 : yStart;
+                        break;
+                    };
+                    case 'bottom': {
+                        labelX = xStart;
+                        labelY = yEnd ? (yStart + yEnd) / 2 : yStart;
+                        break;
+                    }
+                    case 'left': {
+                        labelX = xEnd / 2;
+                        labelY = labelYEnd ? Math.min(yStart, labelYEnd) : yStart;
+                        break;
+                    }
+                    case 'right': {
+                        labelX = xEnd / 2;
+                        labelY = labelYEnd ? Math.max(yStart, labelYEnd) : yStart;
+                        break;
+                    }
+                    case 'inside': {
+                        labelX = xEnd / 2;
+                        labelY = yEnd ? (yStart + yEnd) / 2 : yStart;
+                        break;
+                    }
+                    default: {
+                        labelX = xEnd / 2;
+                        labelY = yEnd ? (yStart + yEnd) / 2 : yStart;
+                    }
+                }
+            }
+            this.labelPoint = {
+                x: labelX,
+                y: labelY
+            }
         }
 
         this.pathData.points.push(
@@ -212,10 +299,10 @@ export class CrossLine {
             label: {
                 parallel,
                 rotation,
+                position,
             },
-            sideFlag,
             parallelFlipRotation,
-            regularFlipRotation
+            regularFlipRotation,
         } = this;
 
         if (x === undefined || y === undefined) { return; }
@@ -226,18 +313,43 @@ export class CrossLine {
         const regularFlipFlag = !labelRotation && regularFlipRotation >= 0 && regularFlipRotation <= Math.PI ? -1 : 1;
 
         const autoRotation = parallel
-        ? parallelFlipFlag * Math.PI / 2
-        : (regularFlipFlag === -1 ? Math.PI : 0);
+            ? parallelFlipFlag * Math.PI / 2
+            : (regularFlipFlag === -1 ? Math.PI : 0);
 
-        const labelTextBaseline = parallel && !labelRotation
-            ? (sideFlag * parallelFlipFlag === -1 ? 'hanging' : 'bottom')
-            : 'middle';
+        let labelTextBaseline: CanvasTextBaseline;
+        let labelTextAlign: CanvasTextAlign;
 
-        const alignFlag = (labelRotation > 0 && labelRotation <= Math.PI) ? -1 : 1;
-
-        const labelTextAlign = parallel
-            ? labelRotation ? (sideFlag * alignFlag === -1 ? 'end' : 'start') : 'center'
-            : sideFlag * regularFlipFlag === -1 ? 'end' : 'start';
+        switch (position) {
+            case 'top': {
+                labelTextBaseline = labelRotation ? 'middle' : 'bottom';
+                labelTextAlign = labelRotation ? 'start' : 'center';
+                break;
+            };
+            case 'bottom': {
+                labelTextBaseline = labelRotation ? 'middle' : 'top';
+                labelTextAlign = labelRotation ? 'end' : 'center';
+                break;
+            }
+            case 'left': {
+                labelTextBaseline = labelRotation ? 'top' : 'middle';
+                labelTextAlign = labelRotation ? 'center' : 'end';
+                break;
+            }
+            case 'right': {
+                labelTextBaseline = labelRotation ? 'top' : 'middle';
+                labelTextAlign = labelRotation ? 'center' : 'start';
+                break;
+            }
+            case 'inside': {
+                labelTextBaseline = 'middle';
+                labelTextAlign = 'center';
+                break;
+            }
+            default: {
+                labelTextBaseline = 'middle';
+                labelTextAlign = 'center';
+            }
+        }
 
         crossLineLabel.textBaseline = labelTextBaseline;
         crossLineLabel.textAlign = labelTextAlign;

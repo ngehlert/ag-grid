@@ -14,6 +14,7 @@ import { ContinuousScale } from "./scale/continuousScale";
 import { CountableTimeInterval } from "./util/time/interval";
 import { CrossLine } from "./chart/crossLine";
 import { Validate, BOOLEAN, OPT_BOOLEAN, NUMBER, OPT_NUMBER, OPT_FONT_STYLE, OPT_FONT_WEIGHT, STRING, OPT_STRING } from './util/validation';
+import { ChartAxisDirection } from "./main";
 
 enum Tags {
     Tick,
@@ -744,6 +745,8 @@ export class Axis<S extends Scale<D, number>, D = any> {
             crossLine.scale = scale;
             crossLine.gridLength = gridLength;
             crossLine.sideFlag = -sideFlag as (-1 | 1);
+            crossLine.direction = rotation === -Math.PI / 2 ? ChartAxisDirection.X : ChartAxisDirection.Y;
+            crossLine.label.parallel = crossLine.label.parallel !== undefined ? crossLine.label.parallel : parallelLabels;
             crossLine.parallelFlipRotation = parallelFlipRotation;
             crossLine.regularFlipRotation = regularFlipRotation;
             crossLine.update(anyVisible); // fix visible
