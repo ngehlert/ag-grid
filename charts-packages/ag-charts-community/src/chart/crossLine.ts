@@ -57,6 +57,22 @@ interface Point {
 interface CrossLinePathData {
     readonly points: Point[];
 }
+
+type CoordinatesFnOpts = { yDirection: boolean, xStart: number, xEnd: number, yStart: number, yEnd: number, labelYEnd?: number }
+
+type CoordinatesFn = (
+    { yDirection, xStart, xEnd, yStart, yEnd, labelYEnd }: CoordinatesFnOpts
+) => { x: number, y: number };
+
+type TextAlignFn = (labelRotation: number) => CanvasTextAlign;
+
+type TextBaselineFn = (labelRotation: number) => CanvasTextBaseline;
+
+type PositionCalcFns = {
+    c: CoordinatesFn;
+    a: TextAlignFn;
+    b: TextBaselineFn;
+};
 export class CrossLine {
 
     protected static readonly ANNOTATION_LAYER_ZINDEX = Series.SERIES_LAYER_ZINDEX + 20;
@@ -125,7 +141,7 @@ export class CrossLine {
     }
 
     private createNodeData() {
-        const { scale, gridLength, sideFlag, direction, range, value, label: { position } } = this;
+        const { scale, gridLength, sideFlag, direction, range, value, label: { position, padding: labelPadding }, labelCoordinatesFns } = this;
 
         if (!scale) { return; }
 
@@ -135,78 +151,16 @@ export class CrossLine {
         this.pathData = { points: [] };
 
         [xStart, xEnd] = [0, sideFlag * gridLength];
-        [yStart, yEnd] = range || [value, undefined];
+        [yStart, yEnd] = range ? [Math.min(...range), Math.max(...range)] : [value, undefined];
         [yStart, yEnd] = [scale.convert(yStart) + halfBandwidth, scale.convert(yEnd) + halfBandwidth];
 
         if (this.label.text) {
-            let labelX;
-            let labelY = yEnd ? (yStart + yEnd) / 2 : yStart;
+            const yDirection = direction === ChartAxisDirection.Y;
             const labelYEnd = isNaN(yEnd) ? undefined : yEnd;
-            if (direction === ChartAxisDirection.Y) {
-                switch (position) {
-                    case 'top': {
-                        labelX = xEnd / 2;
-                        labelY = labelYEnd ? Math.min(yStart, labelYEnd) : yStart;
-                        break;
-                    };
-                    case 'bottom': {
-                        labelX = xEnd / 2;
-                        labelY = labelYEnd ? Math.max(yStart, labelYEnd) : yStart;
-                        break;
-                    }
-                    case 'left': {
-                        labelX = xStart;
-                        labelY = yEnd ? (yStart + yEnd) / 2 : yStart;
-                        break;
-                    }
-                    case 'right': {
-                        labelX = xEnd;
-                        labelY = yEnd ? (yStart + yEnd) / 2 : yStart;
-                        break;
-                    }
-                    case 'inside': {
-                        labelX = xEnd / 2;
-                        labelY = yEnd ? (yStart + yEnd) / 2 : yStart;
-                        break;
-                    }
-                    default: {
-                        labelX = xEnd;
-                        labelY = yEnd ? (yStart + yEnd) / 2 : yStart;
-                    }
-                }
-            } else {
-                switch (position) {
-                    case 'top': {
-                        labelX = xEnd;
-                        labelY = yEnd ? (yStart + yEnd) / 2 : yStart;
-                        break;
-                    };
-                    case 'bottom': {
-                        labelX = xStart;
-                        labelY = yEnd ? (yStart + yEnd) / 2 : yStart;
-                        break;
-                    }
-                    case 'left': {
-                        labelX = xEnd / 2;
-                        labelY = labelYEnd ? Math.min(yStart, labelYEnd) : yStart;
-                        break;
-                    }
-                    case 'right': {
-                        labelX = xEnd / 2;
-                        labelY = labelYEnd ? Math.max(yStart, labelYEnd) : yStart;
-                        break;
-                    }
-                    case 'inside': {
-                        labelX = xEnd / 2;
-                        labelY = yEnd ? (yStart + yEnd) / 2 : yStart;
-                        break;
-                    }
-                    default: {
-                        labelX = xEnd / 2;
-                        labelY = yEnd ? (yStart + yEnd) / 2 : yStart;
-                    }
-                }
-            }
+
+            const { c } = this.isPositionType(position) ? this.directionHandling[position] : this.directionHandling['top'];
+            const { x: labelX, y: labelY } = c({ yDirection, xStart, xEnd, yStart, yEnd, labelYEnd });
+
             this.labelPoint = {
                 x: labelX,
                 y: labelY
@@ -316,40 +270,10 @@ export class CrossLine {
             ? parallelFlipFlag * Math.PI / 2
             : (regularFlipFlag === -1 ? Math.PI : 0);
 
-        let labelTextBaseline: CanvasTextBaseline;
-        let labelTextAlign: CanvasTextAlign;
+        const { a, b } = this.isPositionType(position) ? this.directionHandling[position] : this.directionHandling['top'];
 
-        switch (position) {
-            case 'top': {
-                labelTextBaseline = labelRotation ? 'middle' : 'bottom';
-                labelTextAlign = labelRotation ? 'start' : 'center';
-                break;
-            };
-            case 'bottom': {
-                labelTextBaseline = labelRotation ? 'middle' : 'top';
-                labelTextAlign = labelRotation ? 'end' : 'center';
-                break;
-            }
-            case 'left': {
-                labelTextBaseline = labelRotation ? 'top' : 'middle';
-                labelTextAlign = labelRotation ? 'center' : 'end';
-                break;
-            }
-            case 'right': {
-                labelTextBaseline = labelRotation ? 'top' : 'middle';
-                labelTextAlign = labelRotation ? 'center' : 'start';
-                break;
-            }
-            case 'inside': {
-                labelTextBaseline = 'middle';
-                labelTextAlign = 'center';
-                break;
-            }
-            default: {
-                labelTextBaseline = 'middle';
-                labelTextAlign = 'center';
-            }
-        }
+        let labelTextAlign: CanvasTextAlign = a(labelRotation);
+        let labelTextBaseline: CanvasTextBaseline = b(labelRotation);
 
         crossLineLabel.textBaseline = labelTextBaseline;
         crossLineLabel.textAlign = labelTextAlign;
@@ -358,4 +282,94 @@ export class CrossLine {
         crossLineLabel.translationY = y;
         crossLineLabel.rotation = autoRotation + labelRotation;
     }
+
+    private labelCoordinatesFns: { [key: string]: CoordinatesFn } = {
+        POSITION_TOP: ({ yDirection, xEnd, yStart, yEnd, labelYEnd }) => {
+            if (yDirection) {
+                return { x: xEnd / 2, y: labelYEnd ?? yStart }
+            } else {
+                return { x: xEnd, y: yEnd ? (yStart + yEnd) / 2 : yStart }
+            }
+        },
+        POSITION_LEFT: ({ yDirection, xStart, xEnd, yStart, yEnd }) => {
+            if (yDirection) {
+                return { x: xStart, y: yEnd ? (yStart + yEnd) / 2 : yStart }
+            } else {
+                return { x: xEnd / 2, y: yStart }
+            }
+        },
+        POSITION_RIGHT: ({ yDirection, xEnd, yStart, yEnd, labelYEnd }) => {
+            if (yDirection) {
+                return { x: xEnd, y: yEnd ? (yStart + yEnd) / 2 : yStart }
+            } else {
+                return { x: xEnd / 2, y: labelYEnd ?? yStart }
+            }
+        },
+        POSITION_BOTTOM: ({ yDirection, xStart, xEnd, yStart, yEnd }) => {
+            if (yDirection) {
+                return { x: xEnd / 2, y: yStart }
+            } else {
+                return { x: xStart, y: yEnd ? (yStart + yEnd) / 2 : yStart }
+            }
+        },
+        POSITION_INSIDE: ({ xEnd, yStart, yEnd }) => {
+            return { x: xEnd / 2, y: yEnd ? (yStart + yEnd) / 2 : yStart }
+        },
+        POSITION_INSIDE_TOP_LEFT: ({ yDirection, xStart, xEnd, yStart, labelYEnd }) => {
+            if (yDirection) {
+                return { x: xStart / 2, y: labelYEnd ?? yStart }
+            } else {
+                return { x: xEnd, y: yStart }
+            }
+        },
+        POSITION_INSIDE_BOTTOM_LEFT: ({ xStart, yStart }) => {
+            return { x: xStart, y: yStart }
+        },
+        POSITION_INSIDE_TOP_RIGHT: ({ xEnd, yStart, labelYEnd }) => {
+            return { x: xEnd, y: labelYEnd ?? yStart }
+        },
+        POSITION_INSIDE_BOTTOM_RIGHT: ({ yDirection, xStart, xEnd, yStart, labelYEnd }) => {
+            if (yDirection) {
+                return { x: xEnd, y: yStart }
+            } else {
+                return { x: xStart, y: labelYEnd ?? yStart }
+            }
+        }
+    }
+
+    private labelTextAlignFns: { [key: string]: TextAlignFn } = {
+        POSITION_LEFT: (labelRotation) => labelRotation ? 'center' : 'end',
+        POSITION_RIGHT: (labelRotation) => labelRotation ? 'center' : 'start',
+        POSITION_TOP: (labelRotation) => labelRotation ? 'start' : 'center',
+        POSITION_BOTTOM: (labelRotation) => labelRotation ? 'end' : 'center',
+        POSITION_INSIDE: (labelRotation) => 'center'
+    }
+
+    private labelTextBaselineFns: { [key: string]: TextBaselineFn } = {
+        POSITION_TOP: (labelRotation) => labelRotation ? 'middle' : 'bottom',
+        POSITION_BOTTOM: (labelRotation) => labelRotation ? 'middle' : 'top',
+        POSITION_LEFT: (labelRotation) => labelRotation ? 'top' : 'middle',
+        POSITION_INSIDE: (labelRotation) => 'middle'
+    }
+
+    private directionHandling: Record<CrossLineLabelPosition, PositionCalcFns> = {
+        top: { c: this.labelCoordinatesFns['POSITION_TOP'], a: this.labelTextAlignFns['POSITION_TOP'], b: this.labelTextBaselineFns['POSITION_TOP'] },
+        bottom: { c: this.labelCoordinatesFns['POSITION_BOTTOM'], a: this.labelTextAlignFns['POSITION_BOTTOM'], b: this.labelTextBaselineFns['POSITION_BOTTOM'] },
+        left: { c: this.labelCoordinatesFns['POSITION_LEFT'], a: this.labelTextAlignFns['POSITION_LEFT'], b: this.labelTextBaselineFns['POSITION_LEFT'] },
+        right: { c: this.labelCoordinatesFns['POSITION_RIGHT'], a: this.labelTextAlignFns['POSITION_RIGHT'], b: this.labelTextBaselineFns['POSITION_LEFT'] },
+        inside: { c: this.labelCoordinatesFns['POSITION_INSIDE'], a: this.labelTextAlignFns['POSITION_INSIDE'], b: this.labelTextBaselineFns['POSITION_INSIDE'] },
+        insideLeft: { c: this.labelCoordinatesFns['POSITION_LEFT'], a: this.labelTextAlignFns['POSITION_RIGHT'], b: this.labelTextBaselineFns['POSITION_LEFT'] },
+        insideRight: { c: this.labelCoordinatesFns['POSITION_RIGHT'], a: this.labelTextAlignFns['POSITION_LEFT'], b: this.labelTextBaselineFns['POSITION_LEFT'] },
+        insideTop: { c: this.labelCoordinatesFns['POSITION_TOP'], a: this.labelTextAlignFns['POSITION_TOP'], b: this.labelTextBaselineFns['POSITION_BOTTOM'] },
+        insideBottom: { c: this.labelCoordinatesFns['POSITION_BOTTOM'], a: this.labelTextAlignFns['POSITION_BOTTOM'], b: this.labelTextBaselineFns['POSITION_TOP'] },
+        insideTopLeft: { c: this.labelCoordinatesFns['POSITION_INSIDE_TOP_LEFT'], a: this.labelTextAlignFns['POSITION_RIGHT'], b: this.labelTextBaselineFns['POSITION_BOTTOM'] },
+        insideBottomLeft: { c: this.labelCoordinatesFns['POSITION_INSIDE_BOTTOM_LEFT'], a: this.labelTextAlignFns['POSITION_RIGHT'], b: this.labelTextBaselineFns['POSITION_TOP'] },
+        insideTopRight: { c: this.labelCoordinatesFns['POSITION_INSIDE_TOP_RIGHT'], a: this.labelTextAlignFns['POSITION_LEFT'], b: this.labelTextBaselineFns['POSITION_BOTTOM'] },
+        insideBottomRight: { c: this.labelCoordinatesFns['POSITION_INSIDE_BOTTOM_RIGHT'], a: this.labelTextAlignFns['POSITION_LEFT'], b: this.labelTextBaselineFns['POSITION_TOP'] },
+    };
+
+    private isPositionType = (position?: string): position is CrossLineLabelPosition => {
+        return !!position && Object.keys(this.directionHandling).includes(position);
+    }
+
 }
