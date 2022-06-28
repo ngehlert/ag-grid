@@ -1273,7 +1273,7 @@
           "valueB": "any",
           "nodeA": "RowNode",
           "nodeB": "RowNode",
-          "isInverted": "boolean"
+          "isDescending": "boolean"
         },
         "returnType": "number",
         "optional": true
@@ -21811,7 +21811,7 @@
           "valueB": "any",
           "nodeA": "RowNode",
           "nodeB": "RowNode",
-          "isInverted": "boolean"
+          "isDescending": "boolean"
         },
         "returnType": "number",
         "optional": true
